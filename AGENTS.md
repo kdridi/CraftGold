@@ -102,11 +102,51 @@ Quand l'agent doit prendre une décision de conception (architecture, UX, choix 
 
 ## Conventions techniques
 
-- **WoW Classic Era** (version 1.15.x, interface ~11507)
+- **WoW Classic Era** (version 1.15.x, interface **11508** au moment de l'écriture — vérifier en jeu avec `/dump select(4, GetBuildInfo())`)
 - **Lua** + fichiers `.toc` — pas de build, pas de compilation
 - Chaque capsule = un mini-add-on autonome avec son propre `.toc`
 - Les capsules se testent en les copiant dans `Interface/AddOns/` + `/reload`
-- Références API : [wowpedia.fandom.com](https://wowpedia.fandom.com/wiki/World_of_Warcraft_API), [classic.wowhead.com](https://classic.wowhead.com/), [wowprogramming.com](https://wowprogramming.com/)
+- Références API : [warcraft.wiki.gg](https://warcraft.wiki.gg/wiki/World_of_Warcraft_API), [classic.wowhead.com](https://classic.wowhead.com/), [wowprogramming.com](https://wowprogramming.com/)
+
+### API WoW Classic Era — Findings validés (Session 1)
+
+Ces informations ont été validées via consultation externe (voir `prompts/research-wow-api-response.md`).
+
+#### Trade Skill API
+- `C_TradeSkillUI` **existe** en Classic Era (version pré-10.0, les retraits "Removed in 10.0" sont Retail-only)
+- `GetAllRecipeIDs()` → liste les recettes du métier ouvert (apprises ET non apprises)
+- `GetRecipeInfo(recipeID)` → détails d'une recette
+- `GetRecipeNumReagents(recipeID)` → nombre de composants
+- `GetRecipeReagentInfo(recipeID, index)` → nom, icône, quantité requise, quantité possédée
+- `GetRecipeReagentItemLink(recipeID, index)` → item link du composant (pour extraire l'itemID)
+- ⚠️ Ne fonctionne que si la fenêtre de métier est ouverte
+- ⚠️ Ne montre que les recettes **apprises** par le personnage
+
+#### Auction House API
+- `C_AuctionHouse` **n'existe PAS** en Classic Era — c'est du Retail (8.3+)
+- API utilisable : `QueryAuctionItems(text, minLevel, maxLevel, page, usable, rarity, getAll, exactMatch, filterData)`
+- Résultats via `GetAuctionItemInfo("list", index)` → `buyoutPrice`, `count`, `itemId`, etc.
+- ⚠️ Pas de recherche par itemID — recherche par **nom** uniquement
+- ⚠️ `buyoutPrice` est **par stack**, pas par unité — diviser par `count`
+- ⚠️ Asynchrone : attendre l'événement `AUCTION_ITEM_LIST_UPDATE`
+- ⚠️ Pagination : 50 résultats par page (index à partir de 0)
+- ⚠️ Throttling : ~0.3s entre les queries, 15min pour `getAll`
+- Vérifier `CanSendAuctionQuery()` avant chaque requête
+- La fenêtre de l'HdV **doit être ouverte**
+
+### Architecture — Décision validée (Session 1)
+
+Source de données pour les recettes : voir `prompts/multiagent-recipe-architecture-response.md`.
+
+- **v1 : Base de données statique** (fichiers Lua avec les recettes codées en dur)
+  - Nécessaire car l'API ne liste que les recettes apprises → impossible de planifier un leveling 1→300
+  - Engineering est un set borné (quelques dizaines de recettes) → maintenance faible
+  - Plus simple pour un projet d'apprentissage
+- **v2 (roadmap) : Hybride** — DB statique + validation dynamique via l'API
+  - L'API sert de QA pour la DB statique
+  - Les résultats API peuvent surcharger les entrées statiques
+- **Règle de design** : stocker les composants en **itemID**, pas en nom
+- **Règle de design** : structurer la DB pour que l'API puisse overrider les entrées (passage v1→v2 sans rewrite)
 
 ### Types de capsules
 

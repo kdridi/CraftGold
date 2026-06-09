@@ -1,6 +1,6 @@
 # Roadmap — CraftGold
 
-> Document unique de planification. Remplace l'ancien PLAN-FORMATION.md et TUTORIALS.md.
+> Document unique de planification.
 
 ---
 
@@ -16,6 +16,32 @@
 4. **Phase 4 — Données du jeu** — Items, recettes, Hôtel des Ventes
 5. **Phase 5 — Algorithme** — Calcul récursif des coûts
 6. **Phase 6 — Assemblage** — Intégration finale de CraftGold
+
+---
+
+## Décisions architecturales
+
+### Source de données pour les recettes
+
+| Version | Approche | Justification |
+|---------|----------|---------------|
+| **v1** | Base de données statique (fichiers Lua) | L'API Trade Skill ne liste que les recettes apprises → impossible de planifier un leveling 1→300 sans DB. Engineering est borné, maintenance faible. |
+| **v2 (roadmap)** | Hybride : DB statique + validation/surcharge par l'API | L'API sert de QA et enrichit les données live. |
+
+**Règles de design :**
+- Composants stockés en **itemID**, pas en nom
+- DB structurée pour être overridable par l'API (passage v1→v2 sans rewrite)
+
+### API WoW Classic Era
+
+| API | Disponible en Classic Era ? | Notes |
+|-----|----------------------------|-------|
+| `C_TradeSkillUI.*` | ✅ Oui (version pré-10.0) | Ne liste que les recettes apprises |
+| `C_AuctionHouse.*` | ❌ Non (Retail 8.3+ uniquement) | — |
+| `QueryAuctionItems()` | ✅ Oui | Recherche par nom, pas par ID |
+| `GetAuctionItemInfo()` | ✅ Oui | `buyoutPrice` = par stack, diviser par `count` |
+
+Voir `prompts/research-wow-api-response.md` pour les détails complets.
 
 ---
 
@@ -54,9 +80,9 @@
 
 | # | Capsule | Concepts clés | Type |
 |---|---------|---------------|------|
-| 09 | Item Info | `GetItemInfo()`, cache, callbacks de chargement | Semi-autonomous |
-| 10 | Trade Skill API | `C_TradeSkillUI`, recettes, reagents, arbre de fabrication | Semi-autonomous |
-| 11 | Auction House Scan | `C_AuctionHouse`, scan, callbacks, tableau de prix | Semi-autonomous |
+| 09 | Item Info | `GetItemInfo()`, `GetItemInfoInstant()`, cache, callbacks | Semi-autonomous |
+| 10 | Trade Skill API | `C_TradeSkillUI` (GetAllRecipeIDs, GetRecipeReagentInfo, etc.), événement TRADE_SKILL_LIST_UPDATE | Semi-autonomous |
+| 11 | Auction House Scan | `QueryAuctionItems`, `GetAuctionItemInfo`, `AUCTION_ITEM_LIST_UPDATE`, throttling, prix par stack vs unité | Semi-autonomous |
 
 ## Phase 5 — Algorithme
 
@@ -72,7 +98,7 @@
 
 | # | Capsule | Concepts clés | Type |
 |---|---------|---------------|------|
-| 13 | CraftGold Final | Scan AH → calcul → UI, intégration complète | Sequential (01-12) |
+| 13 | CraftGold Final | DB statique Engineering, scan AH, calcul coûts, UI complète | Sequential (01-12) |
 
 ---
 
@@ -106,7 +132,7 @@
 
 ## Historique des sessions
 
-### Session 1 — Fondations
+### Session 1 — Fondations & validation
 - ✅ Discussion du concept CraftGold (calcul récursif des coûts)
 - ✅ Double objectif défini : monter un métier au moindre coût + gagner de l'or en craftant
 - ✅ Focus initial : Ingénierie sur WoW Classic Era
@@ -114,3 +140,12 @@
 - ✅ Création de AGENTS.md, README.md, ROADMAP.md
 - ✅ Génération des 13 squelettes dans `00-todo/`
 - ✅ Initialisation du dépôt git
+- ✅ Test du Pattern 1 (recherche web) — API WoW Classic Era validée via Claude
+  - `C_AuctionHouse` n'existe PAS en Classic Era → `QueryAuctionItems` + `GetAuctionItemInfo`
+  - `C_TradeSkillUI` existe (version pré-10.0) mais ne liste que les recettes apprises
+  - Interface version : 11508 (patch 1.15.8)
+- ✅ Test du Pattern 2 (multi-agents) — Architecture recettes validée
+  - **Décision : DB statique pour v1** (API seule ne permet pas le leveling planner)
+  - **v2 roadmap : hybride** (DB statique + validation/surcharge par l'API)
+  - Règle : stocker en itemID, structurer pour overridable
+- ✅ Mise à jour des squelettes capsules 10 et 11 avec les bonnes API

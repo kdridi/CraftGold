@@ -29,7 +29,7 @@ By the end of this capsule, you will be able to:
 ### The `.toc` File — Your Add-on's ID Card
 
 ```
-## Interface: 11507
+## Interface: 11508
 ## Title: Hello Azeroth
 ## Notes: My first WoW add-on
 ## Author: YourName
@@ -37,7 +37,7 @@ By the end of this capsule, you will be able to:
 HelloAzeroth.lua
 ```
 
-- `## Interface: 11507` — the version of WoW Classic Era's UI API (1.15.7)
+- `## Interface: 11508` — the version of WoW Classic Era's UI API (1.15.8, verify in-game with `/dump select(4, GetBuildInfo())`)
 - `## Title` — the name shown in the Add-ons list
 - Files listed at the bottom are loaded **in order**
 
