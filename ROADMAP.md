@@ -149,3 +149,9 @@ Voir `prompts/research-wow-api-response.md` pour les détails complets.
   - **v2 roadmap : hybride** (DB statique + validation/surcharge par l'API)
   - Règle : stocker en itemID, structurer pour overridable
 - ✅ Mise à jour des squelettes capsules 10 et 11 avec les bonnes API
+- ✅ Phase 0 (capsule 01) : méga-prompt de recherche envoyé à ChatGPT, Claude, Gemini
+- ✅ docs/ seedé avec 4 fichiers validés : toc-format, lua-basics-wow, addon-list-access, open-questions
+- ✅ 3 désaccords identifiés (nécessitent vérification en jeu Phase B) :
+  - `/reload` détecte nouveaux add-ons ? (Claude: oui, Gemini: non)
+  - Chemin menu add-ons en jeu (Claude vs Gemini vs ChatGPT)
+  - `print()` top-level visible dans le chat ? (Gemini: probablement non)
