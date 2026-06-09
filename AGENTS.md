@@ -98,10 +98,12 @@ L'agent **guide** : « crée ce fichier avec ce contenu », « copie le dossier 
 ### Rituel de session
 
 **🟢 Début de session :**
-1. `ls 01-wip/` → capsule en cours ?
-2. `ls 02-done/` → combien de terminées ?
-3. `ls 00-todo/ | head -1` → prochaine
-4. Comparer avec ROADMAP.md → filesystem = source de vérité
+1. Lire `AGENTS.md` puis `ROADMAP.md` pour le contexte
+2. `ls 01-wip/` → capsule en cours ? Si oui, lire son README.md pour reprendre
+3. `ls 02-done/` → combien de terminées ?
+4. `ls 00-todo/ | head -1` → prochaine capsule
+5. Lire le README.md de la prochaine capsule
+6. Comparer avec ROADMAP.md → filesystem = source de vérité
 
 **🔴 Fin de session :**
 1. Capsule validée → `git mv 01-wip/XX 02-done/` + commit
