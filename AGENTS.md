@@ -11,7 +11,31 @@ Le cœur technique est un **calcul récursif des coûts** : pour chaque composan
 
 Ce projet a un **double but** : produire un add-on fonctionnel ET apprendre à créer des add-ons WoW.
 
-## Mode de travail — Protocole en 3 phases
+## Mode de travail — Protocole en 3 phases (+ phase de recherche)
+
+### Phase 0 — Recherche pré-capsule (validation des faits)
+
+**Avant chaque capsule**, l'agent identifie tout ce qu'il « sait » ou « suppose » pour cette capsule et génère un **méga-prompt de vérification**. Ce prompt couvre toutes les connaissances nécessaires : API, syntaxe Lua, comportements en jeu, exemples d'add-ons existants.
+
+1. L'agent liste ses hypothèses pour la capsule
+2. L'agent rédige un prompt exhaustif à copier dans Claude/Gemini
+3. L'utilisateur copie le prompt, récupère les réponses
+4. L'utilisateur rapporte les réponses
+5. L'agent traite les réponses, extrait les faits validés, identifie les corrections
+6. L'agent crée ou met à jour les fichiers dans `docs/` (base de connaissances validée)
+7. **Ce n'est qu'après cette étape** qu'on entre dans la Phase A (storytelling + checklist)
+
+**Règle** : les capsules sont construites depuis `docs/`, pas depuis le dataset de l'agent. Le dataset sert d'inspiration pour le parcours pédagogique ; `docs/` est la source de vérité pour les faits techniques.
+
+#### Répertoire `docs/`
+
+La base de connaissances validée du projet. Chaque fichier couvre un sujet :
+- `docs/toc-format.md` — Format du fichier .toc
+- `docs/lua-basics-wow.md` — Bases du Lua spécifiques à WoW
+- `docs/events.md` — Système d'événements WoW
+- etc.
+
+Chaque doc contient du **code testable** et des **exemples concrets** — pas de la théorie abstraite.
 
 ### Phase A — Conception (on discute, zéro fichier)
 
@@ -177,7 +201,9 @@ Source de données pour les recettes : voir `prompts/multiagent-recipe-architect
 3. `ls 02-done/` → combien de terminées ?
 4. `ls 00-todo/ | head -1` → prochaine capsule
 5. Lire le README.md de la prochaine capsule
-6. Comparer avec ROADMAP.md → filesystem = source de vérité
+6. **Phase 0** : lister les hypothèses, générer le méga-prompt de recherche, attendre les réponses, mettre à jour `docs/`
+7. Phase A : storytelling + checklist technique
+8. Comparer avec ROADMAP.md → filesystem = source de vérité
 
 **🔴 Fin de session :**
 1. Capsule validée → `git mv 01-wip/XX 02-done/` + commit
