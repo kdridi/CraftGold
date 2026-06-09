@@ -66,6 +66,40 @@ L'agent **guide** : « crée ce fichier avec ce contenu », « copie le dossier 
 | Noms de fichiers et répertoires | 🇬🇧 Anglais |
 | README.md des capsules | 🇬🇧 Anglais |
 
+## Recherche et validation externe
+
+Pi Coding Agent n'a pas un accès web fiable. Pour toute recherche ou prise de décision importante, l'agent doit **produire des prompts** que l'utilisateur copiera dans d'autres LLM (Claude, Gemini, etc.) puis rapportera les réponses.
+
+### Pattern 1 — Recherche web (info technique)
+
+Quand l'agent a besoin d'informations factuelles (API WoW, syntaxe Lua, comportement d'une fonction, exemples d'add-ons existants), il génère un prompt de recherche :
+
+1. L'agent rédige un prompt clair et ciblé pour un LLM avec accès web
+2. L'utilisateur le copie dans Claude / Gemini / autre
+3. L'utilisateur rapporte la réponse
+4. L'agent intègre l'information et lève l'ambiguïté
+
+**Déclencheur** : à la moindre hésitation sur un fait technique, une API, un comportement en jeu — ne pas deviner, demander.
+
+### Pattern 2 — Consultation multi-agents (décision architecturale)
+
+Quand l'agent doit prendre une décision de conception (architecture, UX, choix entre plusieurs approches), il génère un prompt pour une consultation multi-agents :
+
+1. L'agent définit **2-3 personnalités d'agents** avec des points de vue différents (ex: un puriste performance, un pragmatiste simplicité, un défenseur de l'UX)
+2. L'agent rédige un prompt pour Claude Code qui fera interagir ces personnalités
+3. L'utilisateur copie le prompt dans Claude Code
+4. Le multi-agent débat et produit une synthèse
+5. L'utilisateur rapporte la synthèse
+6. L'agent et l'utilisateur en tirent une décision
+
+**Déclencheur** : choix d'architecture, conception d'UI, stratégie d'algorithme, ou toute décision qui mérite d'être challengée.
+
+### Règle générale
+
+**Ne jamais supposer.** Si on n'est pas sûr à 100% d'un fait technique ou d'un choix de conception → produire un prompt, demander à l'utilisateur de consulter, attendre la réponse avant de continuer.
+
+---
+
 ## Conventions techniques
 
 - **WoW Classic Era** (version 1.15.x, interface ~11507)
