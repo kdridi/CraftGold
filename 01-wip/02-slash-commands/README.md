@@ -36,10 +36,15 @@ Le mécanisme WoW pour les slash commands personnalisées repose sur deux élém
 2. **`SlashCmdList["TOKEN"] = handler`** pour enregistrer la fonction qui traite la commande.
 
 ```lua
-SLASH_HELLOAZEROTH1 = "/helloazeroth"
-SLASH_HELLOAZEROTH2 = "/ha"
-SlashCmdList["HELLOAZEROTH"] = HandleSlash
+local addonName, ns = ...
+local TOKEN = string.upper(addonName)  -- "HELLOAZEROTH"
+
+_G["SLASH_" .. TOKEN .. "1"] = "/helloazeroth"
+_G["SLASH_" .. TOKEN .. "2"] = "/ha"
+SlashCmdList[TOKEN] = HandleSlash
 ```
+
+Rien n'est codé en dur — si on renomme le dossier en `CraftGold`, tout s'adapte automatiquement.
 
 ### Signature du handler
 
@@ -106,6 +111,7 @@ Exemple : `RGB("Bonjour", 0xFF, 0x00, 0x00)` → texte rouge.
 ### Ce qu'on a amélioré en Phase B
 - **Fonction `RGB()`** — au lieu de forger `|cFFRRGGBB...|r` à la main (illisible), on a créé un utilitaire propre avec `string.format`
 - **Bug de la reconstruction du message** — le code initial reconstruisait `full = command .. " " .. rest` pour le cas echo, ce qui avalait les espaces internes. Solution : utiliser directement `msg` original. Le parsing ne sert qu'à identifier les sous-commandes connues (`help`), pas à transformer le message libre.
+- **`addonName` au lieu du dur** — on a repris le vararg `local addonName, ns = ...` de la capsule 01 pour déduire dynamiquement le token, le préfixe et les aliases `SLASH_*` via `_G[]`
 
 ### Vérification Phase 0 confirmée en jeu
 - ✅ `msg` est **trimé** par le moteur (ChatGPT avait la bonne source FrameXML)
