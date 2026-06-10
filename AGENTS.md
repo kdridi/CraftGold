@@ -219,12 +219,22 @@ Source de données pour les recettes : voir `prompts/multiagent-recipe-architect
 7. Phase A : storytelling + checklist technique
 8. Comparer avec ROADMAP.md → filesystem = source de vérité
 
-**🔴 Fin de session :**
-1. Capsule validée → `git mv 01-wip/XX 02-done/` + commit
-2. Capsule en cours → reste dans `01-wip/`
-3. Mettre à jour ROADMAP.md (historique)
-4. Vérifier cohérence
-5. ⛔ **`git add -A && git commit` AVANT `/new`** — le répertoire de travail doit être propre avant de reset la conversation. Le nouvel agent doit retrouver un état git propre et à jour.
+**🔴 Fin de session — Checklist de cohérence :**
+
+Le but : un `git clone` + nouvelle session doit permettre de reprendre exactement où on en est.
+
+1. **Filesystem** — Déplacer les capsules selon leur statut :
+   - Capsule validée → `git mv 01-wip/XX 02-done/`
+   - Capsule en cours → reste dans `01-wip/`
+2. **ROADMAP.md** — Mettre à jour l'historique des sessions (ce qui a été fait cette session)
+3. **`docs/`** — Ajouter/mettre à jour les docs si de nouvelles connaissances ont été validées
+4. **README.md des capsules** — S'assurer que les README des capsules concernées reflètent le vrai vécu
+5. **Vérification croisée** — Comparer ces 3 sources, elles doivent être cohérentes :
+   - `02-done/` ↔ ROADMAP « Historique des sessions »
+   - `01-wip/` ↔ ROADMAP « en cours »
+   - `00-todo/` ↔ ROADMAP « à faire »
+   - Si incohérence → **filesystem = source de vérité**, mettre à jour ROADMAP en conséquence
+6. ⛔ **`git add -A && git commit` AVANT `/new`** — le répertoire de travail doit être propre avant de reset la conversation. Le nouvel agent doit retrouver un état git propre et à jour.
 
 ### Conventions de commit
 

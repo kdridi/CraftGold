@@ -169,3 +169,9 @@ Voir `prompts/research-wow-api-response.md` pour les détails complets.
   - `docs/wow-api-functions.md` créé (dictionnaire progressif des fonctions API)
   - Règle ajoutée : Phase A étape 4 = lister les fonctions API utilisées
   - README capsule traduit en français avec le déroulement réel
+
+### Session 3 — Capsule 02 complétée
+- ✅ Capsule 02 (Slash Commands) terminée et validée
+- ✅ Concepts maîtrisés : `SlashCmdList`, `SLASH_*`, parsing d'arguments, couleurs chat
+- ✅ Fonction utilitaire `RGB()` créée
+- ✅ Capsule 02 déplacée dans `02-done/`
