@@ -6,16 +6,20 @@
 
 ## Vue d'ensemble
 
-13 capsules progressives, chacune un mini-add-on indépendant, pour apprendre à créer des add-ons WoW tout en construisant CraftGold.
+14 capsules progressives, chacune un mini-add-on indépendant, pour apprendre à créer des add-ons WoW tout en construisant CraftGold.
 
 **6 phases :**
 
 1. **Phase 1 — Bases** — Structure d'un add-on, événements, persistance
-2. **Phase 2 — Interface** — Frames, boutons, listes scrollables
-3. **Phase 3 — Intégration** — Minimap, options panel
-4. **Phase 4 — Données du jeu** — Items, recettes, Hôtel des Ventes
-5. **Phase 5 — Algorithme** — Calcul récursif des coûts
-6. **Phase 6 — Assemblage** — Intégration finale de CraftGold
+2. **Phase 2 — UI minimale** — Frames, boutons, texte (suffisant pour le MVP)
+3. **Phase 3 — Cœur métier** — DB recettes, prix, calcul récursif des coûts
+4. **Phase 4 — Données du jeu** — Items, Hôtel des Ventes
+5. **Phase 5 — Produit MVP** — Affichage des résultats, premier moment magique
+6. **Phase 6 — Extensions** — Scroll frame, leveling planner, polish
+
+### Principe directeur
+
+> **Données d'abord, interface ensuite.** On ne construit pas de widgets par spéculation. On apprend les widgets quand les données réelles les rendent nécessaires.
 
 ---
 
@@ -43,90 +47,122 @@
 
 Voir `prompts/research-wow-api-response.md` pour les détails complets.
 
+### Décision MVP (Session 7)
+
+Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
+
+**Consensus 3/3 LLM :**
+- La roadmap widgets-first était une erreur ("Widget-Trap")
+- Ce qu'on sait faire (frames, boutons, texte) suffit pour le MVP
+- Le calculateur récursif est le cœur du produit → à débloquer en premier
+- Scroll frame, minimap, options → reportés après le MVP
+
+**Ordre retenu :**
+1. DB statique (10-20 recettes Engineering, Lua pur, testable busted)
+2. Prix manuels via slash command (`/cg price`) + calculateur récursif
+3. ItemInfo cache (noms lisibles)
+4. Scan AH ciblé (automatisation des prix)
+5. UI d'affichage (fenêtre simple, Top 10)
+
+**Premier moment magique :**
+```
+/cg price 2840 12s40c       -- Copper Bar = 12s40c
+/cg price 2589 3s10c        -- Linen Cloth = 3s10c
+/cg price 4359 18s          -- Handful of Copper Bolts = 18s
+/cg analyze
+
+→ "Copper Modulator — Coût: 41s20c — Profit: 30s80c — Marge: 74%"
+→ "Conseil: craft les Copper Bolts (12s40c) au lieu de les acheter (18s)"
+```
+
 ---
 
-## Phase 1 — Bases de la création d'add-on
+## Phase 1 — Bases de la création d'add-on ✅
 
 > Objectif : comprendre comment WoW charge et exécute un add-on.
 
-| # | Capsule | Concepts clés | Type |
-|---|---------|---------------|------|
-| 01 | Hello Azeroth | `.toc`, `.lua`, `print()`, `/reload` | Autonomous |
-| 02 | Slash Commands | `SLASH_*`, `SlashCmdList`, arguments, chat coloré | Autonomous |
-| 03 | Saved Variables | `SavedVariables` dans `.toc`, `ADDON_LOADED`, persistance | Autonomous |
+| # | Capsule | Concepts clés | Type | Statut |
+|---|---------|---------------|------|--------|
+| 01 | Hello Azeroth | `.toc`, `.lua`, `print()`, `/reload` | Autonomous | ✅ |
+| 02 | Slash Commands | `SLASH_*`, `SlashCmdList`, arguments, chat coloré | Autonomous | ✅ |
+| 03 | Saved Variables | `SavedVariables` dans `.toc`, `ADDON_LOADED`, persistance | Autonomous | ✅ |
 
-## Phase 2 — Interface graphique
+## Phase 2 — UI minimale ✅
 
-> Objectif : créer des interfaces en jeu avec l'API Frame de WoW.
+> Objectif : créer des interfaces en jeu avec l'API Frame de WoW. Suffisant pour le MVP.
 
-| # | Capsule | Concepts clés | Type |
-|---|---------|---------------|------|
-| 04 | My First Frame | `CreateFrame()`, backdrop, position, fenêtre déplaçable | Autonomous |
-| 05 | Buttons & Text | `CreateFrame("Button", ...)`, `FontString`, `OnClick`, templates | Autonomous |
-| 06 | Scroll Frame | `ScrollFrame`, `Slider`, pool de boutons, liste dynamique | Autonomous |
+| # | Capsule | Concepts clés | Type | Statut |
+|---|---------|---------------|------|--------|
+| 04 | My First Frame | `CreateFrame()`, backdrop, position, fenêtre déplaçable | Autonomous | ✅ |
+| 05 | Buttons & Text | `CreateFrame("Button", ...)`, `FontString`, `OnClick`, templates | Autonomous | ✅ |
 
-## Phase 3 — Intégration au jeu
+## Phase 3 — Cœur métier
 
-> Objectif : intégrer l'add-on dans l'interface existante de WoW.
+> Objectif : construire le moteur économique de CraftGold. Données et algorithme avant UI.
 
-| # | Capsule | Concepts clés | Type |
-|---|---------|---------------|------|
-| 07 | Minimap Button | Bouton minimap, position angulaire, tooltip, icône | Autonomous |
-| 08 | Options Panel | `InterfaceOptions_AddCategory()`, checkboxes, sliders | Autonomous |
+| # | Capsule | Concepts clés | Type | Statut |
+|---|---------|---------------|------|--------|
+| 06 | Recipe DB | DB statique Engineering (10-20 recettes), itemID, structures Lua, tests busted | Autonomous | 🔲 |
+| 07 | Price & Calculator | Prix manuels (`/cg price`), formatage money (or/argent/cuivre), calculateur récursif `min(buy, craft)`, détection de cycles, mémoïsation | Autonomous | 🔲 |
+| 08 | Analyze & Report | `/cg analyze`, Top N crafts rentables, affichage chat, détail recette avec arbre de décision buy vs craft | Autonomous | 🔲 |
 
 ## Phase 4 — Données du jeu
 
-> Objectif : récupérer et manipuler les données du jeu.
+> Objectif : connecter CraftGold aux données réelles du jeu.
 
-| # | Capsule | Concepts clés | Type |
-|---|---------|---------------|------|
-| 09 | Item Info | `GetItemInfo()`, `GetItemInfoInstant()`, cache, callbacks | Semi-autonomous |
-| 10 | Trade Skill API | `C_TradeSkillUI` (GetAllRecipeIDs, GetRecipeReagentInfo, etc.), événement TRADE_SKILL_LIST_UPDATE | Semi-autonomous |
-| 11 | Auction House Scan | `QueryAuctionItems`, `GetAuctionItemInfo`, `AUCTION_ITEM_LIST_UPDATE`, throttling, prix par stack vs unité | Semi-autonomous |
+| # | Capsule | Concepts clés | Type | Statut |
+|---|---------|---------------|------|--------|
+| 09 | Item Info | `GetItemInfo()`, `GetItemInfoInstant()`, cache asynchrone, `GET_ITEM_INFO_RECEIVED`, fallback itemID si pas en cache | Semi-autonomous | 🔲 |
+| 10 | AH Scanner | `QueryAuctionItems`, `GetAuctionItemInfo`, `AUCTION_ITEM_LIST_UPDATE`, pagination, throttling, prix par stack vs unité, scan ciblé des items de la DB | Semi-autonomous | 🔲 |
 
-## Phase 5 — Algorithme
+## Phase 5 — Produit MVP
 
-> Objectif : implémenter le calcul récursif des coûts.
+> Objectif : assembler le premier CraftGold fonctionnel avec UI.
 
-| # | Capsule | Concepts clés | Type |
-|---|---------|---------------|------|
-| 12 | Cost Calculator | Graphe, récursion, `min(buy, craft)`, cycles, memoization | Sequential (10, 11) |
+| # | Capsule | Concepts clés | Type | Statut |
+|---|---------|---------------|------|--------|
+| 11 | Profit Window | Fenêtre CraftGold, boutons Scan/Analyze, Top 10 crafts, détail recette, sélection | Sequential (07, 08) | 🔲 |
 
-## Phase 6 — Assemblage
+## Phase 6 — Extensions
 
-> Objectif : assembler tous les composants dans CraftGold.
+> Objectif : enrichir CraftGold au-delà du MVP. Widgets apprism quand les données les rendent nécessaires.
 
-| # | Capsule | Concepts clés | Type |
-|---|---------|---------------|------|
-| 13 | CraftGold Final | DB statique Engineering, scan AH, calcul coûts, UI complète | Sequential (01-12) |
+| # | Capsule | Concepts clés | Type | Statut |
+|---|---------|---------------|------|--------|
+| 12 | Scroll Frame | `ScrollFrame`, `Slider`, button pooling — **uniquement si la liste dépasse l'écran** | Autonomous | 🔲 |
+| 13 | Leveling Planner | Plan 1→300 optimal, seuils orange/jaune/vert/gris, quantités estimées, coût total | Sequential (06, 07) | 🔲 |
+| 14 | CraftGold v1 | DB complète Engineering, intégration Trade Skill UI, minimap button, options, polish | Sequential (01-13) | 🔲 |
 
 ---
 
 ## Dépendances
 
 ```
-01 → 02 → 03 → 04 → 05 → 06 → 07 → 08
+01 → 02 → 03 → 04 → 05
                    ↓
-                   09 → 10 → 11
-                            ↓
-                           12
-                            ↓
-                           13
+               06 → 07 → 08 → 11
+                ↓         ↑
+               09 → 10 ───┘
+               
+Après MVP:
+12 (quand la liste déborde)
+13 (quand le profit fonctionne)
+14 (assemblage final)
 ```
 
 ---
 
 ## Bilan
 
-| Phase | Capsules | Durée estimée |
-|-------|----------|---------------|
-| Phase 1 — Bases | 3 | ~1,5-3h |
-| Phase 2 — Interface | 3 | ~1,5-3h |
-| Phase 3 — Intégration | 2 | ~1-2h |
-| Phase 4 — Données | 3 | ~1,5-3h |
-| Phase 5 — Algorithme | 1 | ~1h |
-| Phase 6 — Assemblage | 1 | ~1h |
-| **Total** | **13** | **~7-13h** |
+| Phase | Capsules | Statut |
+|-------|----------|--------|
+| Phase 1 — Bases | 3 | ✅ Terminé |
+| Phase 2 — UI minimale | 2 | ✅ Terminé |
+| Phase 3 — Cœur métier | 3 | 🔲 À faire |
+| Phase 4 — Données du jeu | 2 | 🔲 À faire |
+| Phase 5 — Produit MVP | 1 | 🔲 À faire |
+| Phase 6 — Extensions | 3 | 🔲 À faire |
+| **Total** | **14** | |
 
 ---
 
@@ -228,3 +264,17 @@ Voir `prompts/research-wow-api-response.md` pour les détails complets.
   - **Gotcha vécu** : le symlink doit porter le nom de l'add-on (ButtonsAndText), pas du répertoire repo
   - Exploration SetPoint : chaîne d'ancrage, multi-ancrage, signe des offsets
 - ✅ Phase C — README et code polis
+
+### Session 7 — Pivot stratégique MVP
+- ✅ Remise en question de la roadmap widgets-first
+- ✅ Consultation multi-agents (`prompts/multiagent-mvp-strategy.md`) — 3 LLM consultés
+  - **Consensus** : roadmap actuelle = "Widget-Trap" (apprendre des widgets par spéculation)
+  - **Consensus** : ce qu'on sait faire (frames, boutons, texte) suffit pour le MVP
+  - **Consensus** : calculateur récursif = cœur du produit, à débloquer en premier
+- ✅ **Nouvelle roadmap** : données d'abord, interface ensuite
+  - Phase 3 = cœur métier (DB recettes, prix manuels, calculateur récursif)
+  - Phase 4 = données jeu (ItemInfo, scan AH)
+  - Phase 5 = produit MVP (fenêtre résultats)
+  - Phase 6 = extensions (scroll frame, leveling planner, polish)
+- ✅ `docs/scroll-frames.md` créé (servira plus tard, phase 6)
+- ⬜ Prochaine capsule : **06 — Recipe DB**

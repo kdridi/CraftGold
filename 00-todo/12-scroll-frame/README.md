@@ -1,17 +1,17 @@
-# 06 — Scroll Frame
+# 12 — Scroll Frame
 
 | Metadata      | Value                                                       |
 |---------------|-------------------------------------------------------------|
-| Phase         | Phase 2                                                     |
+| Phase         | Phase 6 — Extensions                                        |
 | Duration      | 45 min                                                      |
 | Difficulty    | ●●●●○ (4/5)                                                |
-| Prerequisites | Capsule 05 — Buttons & Text                                 |
+| Prerequisites | Capsule 11 — Profit Window (et besoin réel de scroller)     |
 | Type          | Autonomous                                                  |
 | Concepts      | `ScrollFrame`, `Slider`, button pooling, dynamic content    |
 
 ## Why This Capsule?
 
-*(To be written during Phase A)*
+*(To be written during Phase A — only when the data actually needs scrolling)*
 
 ## Objectives
 
@@ -27,7 +27,7 @@
 
 1. Copy to `Interface/AddOns/`
 2. `/reload` in-game
-3. Type `/scrolltest show`
+3. Test scrolling with a large dataset
 
 ## Expected Output
 
@@ -39,4 +39,4 @@ A scrollable list of items. Scrolling the mouse wheel or dragging the slider mov
 
 ## Going Further
 
-- → Next capsule: **07 — Minimap Button**
+- → Next capsule: **13 — Leveling Planner**

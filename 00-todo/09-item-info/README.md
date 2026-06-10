@@ -1,13 +1,13 @@
 # 09 — Item Info
 
-| Metadata      | Value                                                              |
-|---------------|--------------------------------------------------------------------|
-| Phase         | Phase 4                                                            |
-| Duration      | 30 min                                                             |
-| Difficulty    | ●●●○○ (3/5)                                                       |
-| Prerequisites | Capsule 03 — Saved Variables                                       |
-| Type          | Semi-autonomous                                                    |
-| Concepts      | `GetItemInfo()`, `GetItemInfoInstant()`, cache, item loading       |
+| Metadata      | Value                                                       |
+|---------------|-------------------------------------------------------------|
+| Phase         | Phase 4 — Données du jeu                                    |
+| Duration      | 45 min                                                      |
+| Difficulty    | ●●●○○ (3/5)                                                |
+| Prerequisites | Capsule 08 — Analyze & Report                               |
+| Type          | Semi-autonomous                                              |
+| Concepts      | `GetItemInfo()`, `GetItemInfoInstant()`, cache asynchrone, `GET_ITEM_INFO_RECEIVED` |
 
 ## Why This Capsule?
 
@@ -15,9 +15,10 @@
 
 ## Objectives
 
-1. **Retrieve** item information (name, icon, rarity) using WoW's API
-2. **Handle** the item cache (items may not be loaded immediately)
-3. **Display** item details in the chat or a frame
+1. **Resolve** itemID → name, icon, sellPrice
+2. **Handle** the nil case (item not in cache yet)
+3. **Retry** on `GET_ITEM_INFO_RECEIVED` event
+4. **Display** readable item names instead of raw itemIDs
 
 ## Key Concepts
 
@@ -26,18 +27,12 @@
 ## Execution
 
 1. Copy to `Interface/AddOns/`
-2. `/reload` in-game (must be logged in with a character)
-3. Type `/iteminfo 2589` (Linen Cloth) or any item ID
+2. `/reload` in-game
+3. `/cg item 2840` — show item info
 
 ## Expected Output
 
-```
-[ItemInfo] Linen Cloth
-  ID: 2589
-  Rarity: Common (white)
-  Stack size: 20
-  Icon: Interface\Icons\INV_Fabric_Linen_01
-```
+*(To be written during Phase A)*
 
 ## Common Pitfalls
 
@@ -45,4 +40,4 @@
 
 ## Going Further
 
-- → Next capsule: **10 — Trade Skill API**
+- → Next capsule: **10 — AH Scanner**
