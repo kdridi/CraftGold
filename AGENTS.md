@@ -141,6 +141,7 @@ Quand l'agent doit prendre une décision de conception (architecture, UX, choix 
 ## Conventions techniques
 
 - **WoW Classic Era** (version 1.15.x, interface **11508** au moment de l'écriture — vérifier en jeu avec `/dump select(4, GetBuildInfo())`)
+- **Dossier AddOns** : `/Applications/World of Warcraft/_classic_era_/Interface/AddOns` (utiliser des symlinks depuis ce dossier vers les capsules dans le repo)
 - **Lua** + fichiers `.toc` — pas de build, pas de compilation
 - Chaque capsule = un mini-add-on autonome avec son propre `.toc`
 - Les capsules se testent en les copiant dans `Interface/AddOns/` + `/reload`

@@ -170,8 +170,28 @@ Voir `prompts/research-wow-api-response.md` pour les détails complets.
   - Règle ajoutée : Phase A étape 4 = lister les fonctions API utilisées
   - README capsule traduit en français avec le déroulement réel
 
-### Session 3 — Capsule 02 complétée
-- ✅ Capsule 02 (Slash Commands) terminée et validée
-- ✅ Concepts maîtrisés : `SlashCmdList`, `SLASH_*`, parsing d'arguments, couleurs chat
-- ✅ Fonction utilitaire `RGB()` créée
-- ✅ Capsule 02 déplacée dans `02-done/`
+### Session 4 — Capsule 03 complétée
+- ✅ Phase 0 (capsule 03) : recherche SavedVariables — 3 LLM consultés, consensus total
+- ✅ `docs/saved-variables.md` créé (cycle de vie, sérialisation, patterns, gotchas)
+- ✅ Phase A (storytelling + checklist) validée
+- ✅ Phase B — Capsule 03 testée en jeu :
+  - SavedVariables persistées à travers les `/reload`
+  - Fichier `WTF/Account/.../SavedVariables/SavedVarsDemo.lua` observé
+  - `_G.SavedVarsDemoDB` pour expliciter les globales
+  - `ADDON_LOADED` se déclenche pour TOUS les add-ons (filtrage obligatoire)
+- ✅ Consultation multi-agents (architecture) — 3 LLM consultés
+  - **Décision : Functional Core / Imperative Shell**
+  - `src/` : Core (pur), Style (pur), WoW (seam injectable), Logger (via seam), Test (in-game)
+  - Règle d'or : Core doit charger en Lua pur
+  - Architecture progressive : 5 modules (capsule 03) → +UI → +Data → +WoW seam étendu (capsule 10)
+- ✅ Validation architecture auprès de 3 LLM (pratiques réelles : Questie, DBM, WeakAuras, Auctionator)
+  - Notre architecture validée comme "plus propre que la moyenne"
+  - wowmock = notre pattern packagé, wow-ui-sim pour tests intégration
+  - Recommandation : luacheck + CI (plus tard)
+- ✅ Style sémantique (`highlight`, `command`, `prefix`) au lieu de hex brut
+- ✅ Logger séparé de Style (Style = forme, Logger = sortie)
+- ✅ Seam `WoW.lua` avec fallbacks immuables (bug `WoW.init` corrigé suite à review)
+- ✅ busted installé et configuré (`.busted`, `tests/helpers.lua`)
+- ✅ 32 tests busted (24 Core + 4 Style + 3 Logger + 5 WoW) passant en Lua pur
+- ✅ Tests in-game via `/svars test` (19 assertions, mêmes résultats que busted)
+- ✅ Chemin AddOns ajouté dans AGENTS.md

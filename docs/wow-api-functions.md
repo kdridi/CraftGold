@@ -99,7 +99,9 @@ end)
 |-----------|----------------------|---------|
 | `PLAYER_LOGIN` | Le personnage se connecte (une seule fois par session) | 01 |
 | `PLAYER_ENTERING_WORLD` | Entrée dans le monde (login + chaque changement de zone/instance) | 01 |
-| `ADDON_LOADED` | Un add-on a fini de charger (une fois par add-on) | 03 |
+| `ADDON_LOADED` | Un add-on a fini de charger (une fois par add-on). Les SavedVars sont déjà peuplées. | 03 |
+| `PLAYER_LOGOUT` | Le joueur se déconnecte/reload — dernière chance avant sauvegarde des SavedVars | 03 |
+| `SAVED_VARIABLES_TOO_LARGE` | Les SavedVars d'un add-on sont trop volumineuses pour être chargées | 03 |
 
 ---
 
@@ -136,6 +138,40 @@ local version, build, date, tocVersion = GetBuildInfo()
 -- build      = numéro de build
 -- date       = date du build
 -- tocVersion = 11508
+```
+
+---
+
+## Saved Variables
+
+### `wipe(table)`
+
+**Rôle** : Vide une table **en place** (conserve la référence). ⚠️ Fonction WoW, pas Lua standard.
+
+```lua
+wipe(MyAddonDB)
+-- MyAddonDB est toujours la même table, mais vide
+```
+
+- Alias de `table.wipe`
+- Écrit en C, ultra-rapide
+- Préférer à `MyAddonDB = {}` quand des références locales pointent vers la table
+- ⚠️ **Pas disponible en Lua standard** — ne pas utiliser dans `src/Core.lua`
+
+### `time()`
+
+**Rôle** : Retourne le timestamp Unix actuel (nombre de secondes depuis le 01/01/1970).
+
+```lua
+local ts = time()  -- ex: 1781100188
+```
+
+### `date(format, timestamp)`
+
+**Rôle** : Formate un timestamp en chaîne de caractères (similaire à la fonction C `strftime`).
+
+```lua
+date("%Y-%m-%d %H:%M:%S", time())  -- "2026-06-10 15:43:08"
 ```
 
 ---

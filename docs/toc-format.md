@@ -53,8 +53,8 @@ src\Utils.lua
 | `## Notes:` | Texte de l'info-bulle au survol dans la liste des add-ons | Non |
 | `## Author:` | Nom du créateur (informatif, affiché dans la liste) | Non |
 | `## Version:` | Votre chaîne de version (informatif) | Non |
-| `## SavedVariables:` | Variables globales persistées sur disque (tous les personnages) | Non |
-| `## SavedVariablesPerCharacter:` | Variables persistées par personnage | Non |
+| `## SavedVariables:` | Variables globales persistées sur disque (tous les personnages). Plusieurs variables séparées par virgules. | Non |
+| `## SavedVariablesPerCharacter:` | Variables persistées par personnage. Plusieurs variables séparées par virgules. | Non |
 | `## Dependencies:` | Add-ons qui DOIVENT se charger avant celui-ci | Non |
 | `## OptionalDeps:` | Add-ons qui doivent se charger avant celui-ci s'ils sont présents | Non |
 | `## DefaultState:` | `enabled` ou `disabled` à la première installation | Non |
@@ -66,6 +66,15 @@ Le numéro d'interface suit le pattern `majeur * 10000 + mineur * 100 + patch` :
 - 1.15.4 → 11504
 - 1.15.7 → 11507
 - 1.15.8 → 11508
+
+### SavedVariables et SavedVariablesPerCharacter
+
+- **La variable DOIT être globale** (pas `local`) — WoW cherche uniquement dans `_G`
+- **Plusieurs variables** : `## SavedVariables: Var1, Var2` (séparées par virgules)
+- **Fichier sauvegardé** dans `WTF/Account/<account>/SavedVariables/<AddonName>.lua`
+- **PerCharacter** : `WTF/Account/<account>/<realm>/<char>/SavedVariables/<AddonName>.lua`
+- Seuls `number`, `string`, `boolean` et `table` sont sérialisés — les fonctions sont **silencieusement ignorées**
+- Voir `docs/saved-variables.md` pour le cycle de vie complet
 
 **Toujours vérifier en jeu** : `/dump select(4, GetBuildInfo())`
 

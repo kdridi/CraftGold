@@ -1,0 +1,13 @@
+## Interface: 11508
+## Title: SavedVars Demo
+## Notes: Learn to persist data across sessions
+## Author: Vous
+## Version: 1.0.0
+## SavedVariables: SavedVarsDemoDB
+
+src\WoW.lua
+src\Core.lua
+src\Style.lua
+src\Logger.lua
+src\Test.lua
+SavedVarsDemo.lua
