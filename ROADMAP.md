@@ -195,3 +195,16 @@ Voir `prompts/research-wow-api-response.md` pour les détails complets.
 - ✅ 32 tests busted (24 Core + 4 Style + 3 Logger + 5 WoW) passant en Lua pur
 - ✅ Tests in-game via `/svars test` (19 assertions, mêmes résultats que busted)
 - ✅ Chemin AddOns ajouté dans AGENTS.md
+
+### Session 5 — Capsule 04 complétée
+- ✅ Phase 0 déjà complétée : recherche validée dans le code source Blizzard exporté (BlizzardInterfaceCode/)
+- ✅ `docs/frames.md` créé (CreateFrame, Backdrop, ancres, drag, strata, templates, FontString, gotchas)
+- ✅ `docs/capsule-04-index.md` créé (index de toutes les ressources documentaires)
+- ✅ Phase A (storytelling + checklist) validée
+- ✅ Phase B — Capsule 04 testée en jeu :
+  - Frame visible avec fond sombre, bordure grise, titre
+  - Drag fonctionnel (clic gauche + glisser)
+  - `/myframe` toggle, `/myframe show/hide` explicite
+  - **Gotcha vécu** : frame shown par défaut → premier toggle la cache au lieu de l'afficher
+  - Fix : `frame:Hide()` à la fin de la création
+- ✅ Phase C — README polis avec le vrai vécu (gotchas documentés)

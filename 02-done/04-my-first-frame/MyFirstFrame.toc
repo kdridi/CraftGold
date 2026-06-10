@@ -1,0 +1,6 @@
+## Interface: 11508
+## Title: My First Frame
+## Notes: Capsule 04 — CreateFrame, Backdrop, Drag
+## Author: CraftGold
+
+MyFirstFrame.lua
