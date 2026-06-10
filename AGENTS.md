@@ -210,6 +210,7 @@ Source de données pour les recettes : voir `prompts/multiagent-recipe-architect
 2. Capsule en cours → reste dans `01-wip/`
 3. Mettre à jour ROADMAP.md (historique)
 4. Vérifier cohérence
+5. ⛔ **`git add -A && git commit` AVANT `/new`** — le répertoire de travail doit être propre avant de reset la conversation. Le nouvel agent doit retrouver un état git propre et à jour.
 
 ### Conventions de commit
 
