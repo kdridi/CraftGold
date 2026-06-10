@@ -208,3 +208,23 @@ Voir `prompts/research-wow-api-response.md` pour les détails complets.
   - **Gotcha vécu** : frame shown par défaut → premier toggle la cache au lieu de l'afficher
   - Fix : `frame:Hide()` à la fin de la création
 - ✅ Phase C — README polis avec le vrai vécu (gotchas documentés)
+
+### Session 6 — Capsule 05 complétée
+- ✅ `AGENTS.md` mis à jour : ajout du code source Blizzard exporté (`BlizzardInterfaceCode/`) comme source de vérité locale
+- ✅ Phase 0 : toutes les réponses trouvées dans le code source Blizzard — pas besoin de prompt externe
+  - `SimpleButtonAPIDocumentation.lua` : API complète des boutons
+  - `SecureUIPanelTemplates.xml` / `Classic/SharedUIPanelTemplates.xml` : templates de boutons
+  - `SecureUIPanelTemplates.lua` : handlers Lua des boutons
+- ✅ `docs/buttons.md` créé (API complète, templates, RegisterForClicks, OnClick, exemples, gotchas)
+- ✅ `docs/wow-api-functions.md` enrichi avec les fonctions boutons
+- ✅ Phase A (storytelling + checklist) validée
+- ✅ Phase B — Capsule 05 testée en jeu :
+  - Fenêtre avec titre, status text, 3 boutons (Click Me / Reset / Toggle Info), bouton fermer X
+  - Compteur de clics fonctionnel
+  - Reset grisé au départ, activé après un clic, se re-grise après reset
+  - Toggle Info montre/cache un bloc de texte coloré
+  - `/btntest` et `/bt` fonctionnels
+  - **Gotcha vécu** : `toggleBtn` nil dans le handler de Reset → forward declarations manquantes
+  - **Gotcha vécu** : le symlink doit porter le nom de l'add-on (ButtonsAndText), pas du répertoire repo
+  - Exploration SetPoint : chaîne d'ancrage, multi-ancrage, signe des offsets
+- ✅ Phase C — README et code polis

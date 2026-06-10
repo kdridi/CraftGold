@@ -418,3 +418,112 @@ local a, b, c = strsplit(" ", "un deux trois quatre", 3)
 local parts = strsplittable(" ", "a b c")
 -- parts = {"a", "b", "c"}
 ```
+
+---
+
+## Boutons
+
+> Source : `Blizzard_APIDocumentationGenerated/SimpleButtonAPIDocumentation.lua`, `Blizzard_SharedXML/SecureUIPanelTemplates.xml`.
+> Voir aussi : `docs/buttons.md` pour la documentation complète.
+
+### `button:SetText(text)` / `button:GetText()`
+
+**Rôle** : Définit ou lit le texte affiché sur le bouton.
+
+```lua
+btn:SetText("Click Me")
+local txt = btn:GetText()  -- "Click Me"
+```
+
+### `button:SetFormattedText(fmt, ...)`
+
+**Rôle** : Définit le texte du bouton avec un format (comme `string.format`).
+
+```lua
+btn:SetFormattedText("Clics : %d", count)
+```
+
+### `button:SetScript("OnClick", function(self, button, down) ... end)`
+
+**Rôle** : Définit le handler appelé quand le bouton est cliqué.
+
+```lua
+btn:SetScript("OnClick", function(self, button, down)
+    -- self    = le bouton
+    -- button  = "LeftButton", "RightButton", "MiddleButton", etc.
+    -- down    = true (enfoncé) ou false (relâché)
+end)
+```
+
+### `button:Enable()` / `button:Disable()` / `button:SetEnabled(bool)`
+
+**Rôle** : Active ou désactive le bouton. Un bouton désactivé est grisé et OnClick ne se déclenche pas.
+
+```lua
+btn:Disable()
+btn:Enable()
+btn:SetEnabled(false)  -- équivalent à Disable()
+```
+
+### `button:IsEnabled()`
+
+**Rôle** : Retourne `true` si le bouton est actif.
+
+### `button:RegisterForClicks(...)`
+
+**Rôle** : Définit quels clics déclenchent OnClick.
+
+```lua
+btn:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+```
+
+Options : `"LeftButtonUp"`, `"LeftButtonDown"`, `"RightButtonUp"`, `"RightButtonDown"`, `"AnyUp"`, `"AnyDown"`.
+
+### `button:SetNormalTexture(asset)` / `SetPushedTexture` / `SetHighlightTexture` / `SetDisabledTexture`
+
+**Rôle** : Définit la texture pour chaque état du bouton. `asset` = chemin de fichier ou atlas.
+
+```lua
+btn:SetNormalTexture("Interface\\Buttons\\UI-Panel-Button-Up")
+btn:SetHighlightTexture("Interface\\Buttons\\UI-Panel-Button-Highlight", "ADD")
+```
+
+### `button:SetNormalFontObject(font)` / `SetHighlightFontObject` / `SetDisabledFontObject`
+
+**Rôle** : Définit la police pour chaque état du bouton.
+
+```lua
+btn:SetNormalFontObject(GameFontNormal)
+btn:SetDisabledFontObject(GameFontDisable)
+```
+
+### `button:SetPushedTextOffset(offsetX, offsetY)`
+
+**Rôle** : Décale le texte du bouton quand il est pressé (effet visuel de profondeur).
+
+---
+
+## Templates de boutons
+
+### `UIPanelButtonTemplate`
+
+Template standard de bouton Blizzard. Taille par défaut 40×22. Fournit :
+- 3 textures (Left/Middle/Right) qui changent selon l'état
+- Fonts par état : `GameFontNormal`, `GameFontHighlight`, `GameFontDisable`
+- Highlight en mode ADD
+- Support tooltip via `self.tooltipText`
+
+```lua
+local btn = CreateFrame("Button", nil, parent, "UIPanelButtonTemplate")
+btn:SetSize(120, 24)
+btn:SetText("OK")
+```
+
+### `UIPanelCloseButton`
+
+Bouton X de 32×32. Handler par défaut : cache le parent.
+
+```lua
+local close = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
+close:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 4, 4)
+```

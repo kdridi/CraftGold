@@ -1,0 +1,7 @@
+## Interface: 11508
+## Title: Buttons & Text Demo
+## Notes: Capsule 05 — Buttons, FontStrings, OnClick handlers
+## Author: CraftGold
+## Version: 1.0.0
+
+ButtonsAndText.lua
