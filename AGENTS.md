@@ -31,6 +31,14 @@ Ce projet a un **double but** : produire un add-on fonctionnel ET apprendre à c
 
 **Règle** : les capsules sont construites depuis `docs/`, pas depuis le dataset de l'agent. Le dataset sert d'inspiration pour le parcours pédagogique ; `docs/` est la source de vérité pour les faits techniques.
 
+#### Consultation du code source Blizzard local
+
+Avant de générer un prompt pour les LLM externes, l'agent doit **d'abord consulter le code source Blizzard exporté** (voir conventions techniques). Ce code est la source de vérité la plus fiable — c'est ce que le client exécute réellement.
+
+1. L'agent cherche dans `BlizzardInterfaceCode/Interface/AddOns/` les fichiers pertinents (templates, mixins, API docs)
+2. Si le code source Blizzard répond à la question → pas besoin de prompt externe
+3. Si le code source est insuffisant ou ambigu → on génère un prompt pour validation externe
+
 #### Règles de rédaction des prompts de recherche
 
 1. **Recherche sourcée obligatoire** — Chaque prompt doit exiger explicitement que le LLM fasse une **vraie recherche web** et fournisse des **liens sources** (URLs) pour chaque affirmation. On ne veut pas du savoir « training data » non vérifié, on veut des sources consultables (wowpedia, warcraft.wiki.gg, wowprogramming.com, forums, etc.).
@@ -146,6 +154,19 @@ Quand l'agent doit prendre une décision de conception (architecture, UX, choix 
 - Chaque capsule = un mini-add-on autonome avec son propre `.toc`
 - Les capsules se testent en les copiant dans `Interface/AddOns/` + `/reload`
 - Références API : [warcraft.wiki.gg](https://warcraft.wiki.gg/wiki/World_of_Warcraft_API), [classic.wowhead.com](https://classic.wowhead.com/), [wowprogramming.com](https://wowprogramming.com/)
+
+### Code source Blizzard exporté (source de vérité locale)
+
+- **Chemin** : `/Applications/World of Warcraft/_classic_era_/BlizzardInterfaceCode/Interface/AddOns/`
+- **Généré via** : lancer WoW avec l'option `-console`, puis dans la console : `ExportInterfaceFiles code`
+- **Contenu** : l'intégralité du code source Lua/XML de l'interface Blizzard du client Classic Era (178+ add-ons)
+- **Usage** : source de vérité de premier plan pour valider l'API, les templates, les mixins, les handlers, etc.
+- **Répertoires clés** :
+  - `Blizzard_SharedXML/` — templates partagés (Backdrop, Button, etc.)
+  - `Blizzard_UIPanelTemplates/` — templates de panels (Classic)
+  - `Blizzard_APIDocumentationGenerated/` — documentation auto-générée de l'API
+  - `Blizzard_APIDocumentation/` — documentation supplémentaire
+- ⚠️ Ce dump est lié à la version du client — à refaire si WoW est mis à jour
 
 ### API WoW Classic Era — Findings validés (Session 1)
 
