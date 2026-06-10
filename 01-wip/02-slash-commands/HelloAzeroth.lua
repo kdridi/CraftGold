@@ -6,8 +6,9 @@
 -- 1. Constants
 -------------------------------------------------
 
--- Token used to match SLASH_HELLOAZEROTH* globals with SlashCmdList["HELLOAZEROTH"]
-local TOKEN = "HELLOAZEROTH"
+-- Retrieve addon name and private namespace from the vararg
+local addonName, ns = ...
+local TOKEN = string.upper(addonName) -- "HELLOAZEROTH"
 
 -- Color helper: wraps text in UI escape sequence
 -- |cFFRRGGBBtext|r  (FF = alpha, ignored but required)
@@ -15,7 +16,7 @@ local function RGB(text, r, g, b)
     return string.format("|cFF%02X%02X%02X%s|r", r, g, b, text)
 end
 
-local PREFIX = RGB("[HelloAzeroth]", 0x33, 0xFF, 0x99) .. " "
+local PREFIX = RGB("[" .. addonName .. "]", 0x33, 0xFF, 0x99) .. " "
 
 -------------------------------------------------
 -- 2. Utility: colored print
@@ -63,8 +64,9 @@ end
 -------------------------------------------------
 
 -- Declare aliases: numbers MUST be consecutive (1, 2, 3...)
-SLASH_HELLOAZEROTH1 = "/helloazeroth"
-SLASH_HELLOAZEROTH2 = "/ha"
+-- Declare aliases dynamically using the token from addonName
+_G["SLASH_" .. TOKEN .. "1"] = "/helloazeroth"
+_G["SLASH_" .. TOKEN .. "2"] = "/ha"
 
 -- Register the handler under the same token
 SlashCmdList[TOKEN] = HandleSlash
