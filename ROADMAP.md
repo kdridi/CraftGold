@@ -155,3 +155,17 @@ Voir `prompts/research-wow-api-response.md` pour les détails complets.
   - `/reload` détecte nouveaux add-ons ? (Claude: oui, Gemini: non)
   - Chemin menu add-ons en jeu (Claude vs Gemini vs ChatGPT)
   - `print()` top-level visible dans le chat ? (Gemini: probablement non)
+
+### Session 2 — Capsule 01 complétée
+- ✅ Dépôt déplacé de AddOns/ vers ~/git/ + workflow symlink
+- ✅ Phase A (storytelling + checklist) validée
+- ✅ Phase B — Capsule 01 testée en jeu :
+  - 4 questions ouvertes résolues (Q1-Q4 dans docs/open-questions.md)
+  - Exploration du vararg `...`, du namespace `ns`, des événements
+  - Ajout de `DumpTable()` pour inspecter les tables Lua
+- ✅ Phase C — Polissage :
+  - Convention linguistique mise à jour (docs en FR, code en EN, prompts futurs en FR)
+  - docs/ traduites en français
+  - `docs/wow-api-functions.md` créé (dictionnaire progressif des fonctions API)
+  - Règle ajoutée : Phase A étape 4 = lister les fonctions API utilisées
+  - README capsule traduit en français avec le déroulement réel

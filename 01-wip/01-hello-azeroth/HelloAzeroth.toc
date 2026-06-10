@@ -1,0 +1,6 @@
+## Interface: 11508
+## Title: Hello Azeroth
+## Notes: My first WoW add-on
+## Author: CraftGold
+
+HelloAzeroth.lua

@@ -1,51 +1,51 @@
-# WoW Classic Era API — Validated Reference
+# API WoW Classic Era — Référence validée
 
-> Source: external LLM research (Session 1). See `prompts/research-wow-api-response.md` for raw responses.
+> Source : recherche LLM externe (Session 1). Voir `prompts/research-wow-api-response.md` pour les réponses brutes.
 
-## Interface Version
+## Version d'interface
 
 - Classic Era patch 1.15.8 → Interface **11508**
-- Verify in-game: `/dump select(4, GetBuildInfo())`
-- This number changes with patches — always verify before updating `.toc` files
+- Vérifier en jeu : `/dump select(4, GetBuildInfo())`
+- Ce numéro change avec les patches — toujours vérifier avant de mettre à jour les fichiers `.toc`
 
 ---
 
-## Trade Skill API (`C_TradeSkillUI`)
+## API Trade Skill (`C_TradeSkillUI`)
 
-**Available in Classic Era** — pre-10.0 version. "Removed in 10.0.0" notes on wiki are **Retail-only**.
+**Disponible en Classic Era** — version pré-10.0. Les notes « Removed in 10.0.0 » sur le wiki sont **Retail-only**.
 
-### Functions
+### Fonctions
 
 ```lua
--- List all recipe IDs for the currently open profession
+-- Lister tous les IDs de recette pour le métier actuellement ouvert
 recipeIDs = C_TradeSkillUI.GetAllRecipeIDs()
 
--- Get recipe details
+-- Obtenir les détails d'une recette
 info = C_TradeSkillUI.GetRecipeInfo(recipeID)
--- Returns: .recipeID, .name, .learned, .icon, .numAvailable
+-- Retourne : .recipeID, .name, .learned, .icon, .numAvailable
 
--- Get reagent count for a recipe
+-- Obtenir le nombre de composants d'une recette
 numReagents = C_TradeSkillUI.GetRecipeNumReagents(recipeID)
 
--- Get reagent details (index: 1 to numReagents)
+-- Obtenir les détails d'un composant (index : 1 à numReagents)
 name, icon, requiredCount, playerCount = C_TradeSkillUI.GetRecipeReagentInfo(recipeID, reagentIndex)
 
--- Get reagent item link (for extracting itemID)
+-- Obtenir l'item link d'un composant (pour extraire l'itemID)
 itemLink = C_TradeSkillUI.GetRecipeReagentItemLink(recipeID, reagentIndex)
 itemID = itemLink and GetItemInfoInstant(itemLink)
 ```
 
-### Events
+### Événements
 
-- `TRADE_SKILL_SHOW` — fires when profession window opens
-- `TRADE_SKILL_LIST_UPDATE` — fires when profession data is ready
-- Always wait for `TRADE_SKILL_LIST_UPDATE` before querying
+- `TRADE_SKILL_SHOW` — se déclenche quand la fenêtre de métier s'ouvre
+- `TRADE_SKILL_LIST_UPDATE` — se déclenche quand les données du métier sont prêtes
+- Toujours attendre `TRADE_SKILL_LIST_UPDATE` avant de faire des requêtes
 
-### Critical limitation
+### Limitation critique
 
-**Only shows recipes the character has LEARNED.** Cannot enumerate unlearned recipes. This is why CraftGold v1 uses a static database for the leveling planner.
+**Ne montre que les recettes que le personnage a APPRISES.** Impossible d'énumérer les recettes non apprises. C'est pourquoi CraftGold v1 utilise une base de données statique pour le leveling planner.
 
-### Example: Dump all learned recipes with reagents
+### Exemple : lister toutes les recettes apprises avec leurs composants
 
 ```lua
 local f = CreateFrame("Frame")
@@ -69,44 +69,44 @@ f:SetScript("OnEvent", function()
 end)
 ```
 
-### Gotchas
+### Pièges
 
-- API returns empty tables if profession window is not open
-- `GetRecipeReagentItemLink` may return nil if item is not cached
-- First `TRADE_SKILL_LIST_UPDATE` can arrive before all items are cached
-- Use `GetItemInfoInstant()` for itemID (works on uncached items), `GetItemInfo()` only when you need name/price/etc.
+- L'API retourne des tables vides si la fenêtre de métier n'est pas ouverte
+- `GetRecipeReagentItemLink` peut retourner nil si l'item n'est pas en cache
+- Le premier `TRADE_SKILL_LIST_UPDATE` peut arriver avant que tous les items soient en cache
+- Utiliser `GetItemInfoInstant()` pour l'itemID (fonctionne sur les items non cachés), `GetItemInfo()` seulement quand on a besoin du nom/prix/etc.
 
 ---
 
-## Auction House API
+## API Hôtel des Ventes
 
-**`C_AuctionHouse` does NOT exist in Classic Era.** It was added in Retail 8.3. Classic Era uses the old API.
+**`C_AuctionHouse` n'existe PAS en Classic Era.** Il a été ajouté dans Retail 8.3. Classic Era utilise l'ancienne API.
 
-### Functions
+### Fonctions
 
 ```lua
--- Check if query is allowed
+-- Vérifier si une requête est autorisée
 canQuery, canQueryAll = CanSendAuctionQuery()
 
--- Search by NAME (not itemID!)
--- page starts at 0, 50 results per page
+-- Recherche par NOM (pas par itemID !)
+-- page commence à 0, 50 résultats par page
 QueryAuctionItems(text, minLevel, maxLevel, page, usable, rarity, getAll, exactMatch, filterData)
 
--- Get result counts
+-- Obtenir le nombre de résultats
 numOnPage, totalAuctions = GetNumAuctionItems("list")
 
--- Get auction details (index: 1 to numOnPage)
+-- Obtenir les détails d'une enchère (index : 1 à numOnPage)
 name, texture, count, quality, canUse, level, levelColHeader, minBid,
 minIncrement, buyoutPrice, bidAmount, highBidder, bidderFullName, owner,
 ownerFullName, saleStatus, itemId, hasAllInfo = GetAuctionItemInfo("list", index)
 ```
 
-### Events
+### Événements
 
-- `AUCTION_ITEM_LIST_UPDATE` — fires when query results are ready
-- Can fire **multiple times** as data resolves (check `hasAllInfo`)
+- `AUCTION_ITEM_LIST_UPDATE` — se déclenche quand les résultats de la requête sont prêts
+- Peut se déclencher **plusieurs fois** au fur et à mesure que les données se résolvent (vérifier `hasAllInfo`)
 
-### Example: Find cheapest buyout for an item
+### Exemple : trouver le buyout le moins cher pour un item
 
 ```lua
 local TARGET_ITEM_ID = 13468  -- Black Lotus
@@ -118,7 +118,7 @@ local function StartSearch()
     local canQuery = CanSendAuctionQuery()
     if not canQuery then return false end
     local name = GetItemInfo(TARGET_ITEM_ID)
-    if not name then return false end  -- item not cached
+    if not name then return false end  -- item pas en cache
     QueryAuctionItems(name, nil, nil, 0, nil, nil, false, true, nil)
     return true
 end
@@ -142,19 +142,19 @@ f:SetScript("OnEvent", function()
 end)
 ```
 
-### Gotchas
+### Pièges
 
-1. **`buyoutPrice` is per-STACK, not per-unit.** Divide by `count`. This is the #1 AH scanning bug.
-2. **Search is by name string**, not itemID. Resolve itemID → name via `GetItemInfo()` first.
-3. **Async.** Wait for `AUCTION_ITEM_LIST_UPDATE` after `QueryAuctionItems()`.
-4. **Pagination.** 50 results/page. Loop pages for large result sets.
-5. **Throttling.** ~0.3s between queries, 15min for getAll mode.
-6. **AH window must be open.** Queries fail silently otherwise.
-7. **Item must be cached.** `GetItemInfo(itemID)` may return nil on first call.
+1. **`buyoutPrice` est par STACK, pas par unité.** Diviser par `count`. C'est le bug #1 du scan HdV.
+2. **La recherche est par chaîne de nom**, pas par itemID. Résoudre itemID → nom via `GetItemInfo()` d'abord.
+3. **Asynchrone.** Attendre `AUCTION_ITEM_LIST_UPDATE` après `QueryAuctionItems()`.
+4. **Pagination.** 50 résultats/page. Boucler sur les pages pour les grands résultats.
+5. **Throttling.** ~0,3s entre les requêtes, 15min pour le mode getAll.
+6. **La fenêtre de l'HdV doit être ouverte.** Les requêtes échouent silencieusement sinon.
+7. **L'item doit être en cache.** `GetItemInfo(itemID)` peut retourner nil au premier appel.
 
-### Price formatting
+### Formatage des prix
 
 ```lua
--- Convert copper amount to readable string
-GetCoinTextureString(copperAmount)  -- "2g 50s 12c" (with icons)
+-- Convertir un montant en cuivre en chaîne lisible
+GetCoinTextureString(copperAmount)  -- "2g 50s 12c" (avec icônes)
 ```

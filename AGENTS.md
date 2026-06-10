@@ -32,6 +32,7 @@ Ce projet a un **double but** : produire un add-on fonctionnel ET apprendre à c
 La base de connaissances validée du projet. Chaque fichier couvre un sujet :
 - `docs/toc-format.md` — Format du fichier .toc
 - `docs/lua-basics-wow.md` — Bases du Lua spécifiques à WoW
+- `docs/wow-api-functions.md` — Dictionnaire des fonctions API WoW rencontrées au fil des capsules
 - `docs/events.md` — Système d'événements WoW
 - etc.
 
@@ -52,8 +53,9 @@ L'agent raconte la capsule en story simple : où on en est, quel problème on va
 | 1 | Objectifs observables (2-4 verbes d'action) |
 | 2 | Critères de réussite (ce qu'on voit quand ça marche) |
 | 3 | Prérequis & limites (frontière explicite) |
-| 4 | Plan du code (sections du .lua dans l'ordre) |
-| 5 | Plan du README (points à documenter) |
+| 4 | **Fonctions API utilisées** (liste des fonctions WoW utilisées avec une explication courte — l'apprenant doit comprendre chaque fonction avant de coder) |
+| 5 | Plan du code (sections du .lua dans l'ordre) |
+| 6 | Plan du README (points à documenter) |
 
 🔒 **Aucun fichier généré en Phase A.**
 
@@ -85,10 +87,13 @@ L'agent **guide** : « crée ce fichier avec ce contenu », « copie le dossier 
 | Élément | Langue |
 |---|---|
 | AGENTS.md, ROADMAP.md, README.md (racine) | 🇫🇷 Français |
+| README.md des capsules | 🇫🇷 Français |
+| docs/ (toute la base de connaissances) | 🇫🇷 Français |
 | Nos discussions | 🇫🇷 Français |
+| Prompts de recherche (futurs) | 🇫🇷 Français |
 | Code Lua (fonctions, variables, commentaires) | 🇬🇧 Anglais |
 | Noms de fichiers et répertoires | 🇬🇧 Anglais |
-| README.md des capsules | 🇬🇧 Anglais |
+| Prompts existants (prompts/) | 🇬🇧 Anglais (laissés tels quels) |
 
 ## Recherche et validation externe
 

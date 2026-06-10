@@ -1,49 +1,47 @@
-# Open Questions — Need In-Game Verification
+# Questions ouvertes — ✅ TOUTES RÉSOLUES (Session 2)
 
-> Questions where external LLMs disagreed. Must be verified during Phase B.
+> Questions sur lesquelles les LLM externes étaient en désaccord. Vérifiées en jeu lors de la Phase B de la capsule 01.
 
 ---
 
-## Q1: Does `/reload` detect brand-new add-on folders?
+## Q1 : `/reload` détecte-t-il les nouveaux dossiers d'add-ons ?
 
-| Source | Answer |
-|--------|--------|
-| Claude | Yes — since Classic Era 1.14.0, `/reload` detects new folders and TOC changes |
-| Gemini | No — new add-on folders require a full client restart |
-| ChatGPT | Maybe — "generally yes but some cases may need restart" |
+| Source | Réponse |
+|--------|---------|
+| Claude | Oui — depuis Classic Era 1.14.0, `/reload` détecte les nouveaux dossiers et changements de TOC |
+| Gemini | Non — les nouveaux dossiers nécessitent un redémarrage complet du client |
+| ChatGPT | Peut-être — « généralement oui mais certains cas peuvent nécessiter un redémarrage » |
 
-**Impact:** If yes, the dev workflow is `edit → /reload → test` always. If no, beginners must restart WoW when creating a new add-on or adding files to `.toc`.
+**→ ✅ VÉRIFIÉ : `/reload` DÉTECTE les nouveaux dossiers d'add-ons. Claude avait raison.**
 
-**How to verify:**
-1. Start WoW, log into a character
-2. While in-game, create a brand new add-on folder in `Interface/AddOns/`
-3. Type `/reload`
-4. Check if the new add-on appears in the add-on list
+Le workflow de dev est `éditer → /reload → tester` — pas besoin de redémarrer WoW.
 
-## Q2: Exact menu path to add-on list in-game
+## Q2 : Chemin exact vers la liste des add-ons en jeu
 
-| Source | Answer |
-|--------|--------|
-| Claude | Escape → "AddOns" button directly |
-| Gemini | Escape → Options → AddOns tab |
-| ChatGPT | "Escape → System → Add-ons" (uncertain) |
+| Source | Réponse |
+|--------|---------|
+| Claude | Échap → bouton « AddOns » directement |
+| Gemini | Échap → Options → onglet AddOns |
+| ChatGPT | « Échap → Système → Add-ons » (incertain) |
 
-**How to verify:** Press Escape in-game and look for the AddOns button/tab.
+**→ ✅ VÉRIFIÉ : Échap → Menu principal → bouton « Add-ons ».**
 
-## Q3: Exact interface version
+## Q3 : Version exacte de l'interface
 
-| Source | Answer |
-|--------|--------|
-| Claude | 11508 (patch 1.15.8, released 2025-10-21) |
+| Source | Réponse |
+|--------|---------|
+| Claude | 11508 (patch 1.15.8) |
 | ChatGPT | 11508 |
 | Gemini | 11503-11507 |
 
-**How to verify:** `/dump select(4, GetBuildInfo())` in-game.
+**→ ✅ VÉRIFIÉ : `11508` — confirmé avec `/dump select(4, GetBuildInfo())`.**
 
-## Q4: Does top-level `print()` show in chat?
+## Q4 : `print()` au top-level est-il visible dans le chat ?
 
-All 3 agree it runs during loading screen, but:
-- Gemini explicitly says it likely **won't be visible** (chat frame not initialized yet)
-- Claude and ChatGPT don't flag this as strongly
+Les 3 s'accordent sur le fait que ça s'exécute pendant le loading screen, mais :
+- Gemini dit explicitement que ce ne sera **probablement pas visible** (chat frame pas encore initialisé)
+- Claude et ChatGPT ne le signalent pas aussi fortement
 
-**How to verify:** Put `print("TOP LEVEL")` at the top of a `.lua` file, `/reload`, check if it appears in chat.
+**→ ✅ VÉRIFIÉ : OUI, `print()` au top-level EST visible dans le chat après `/reload`.**
+
+Les deux messages (top-level et event-driven) sont apparus. L'inquiétude sur le loading screen était infondée (du moins avec `/reload`).

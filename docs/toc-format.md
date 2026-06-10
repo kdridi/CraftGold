@@ -1,21 +1,21 @@
-# The `.toc` File — WoW Add-on Manifest
+# Le fichier `.toc` — Manifeste d'add-on WoW
 
-> Consolidated from ChatGPT, Claude, and Gemini research (Session 1).
-> See `prompts/research-capsule-01-hello-azeroth-response-*.md` for raw responses.
+> Consolidé à partir des recherches ChatGPT, Claude et Gemini (Session 1).
+> Voir `prompts/research-capsule-01-hello-azeroth-response-*.md` pour les réponses brutes.
 
 ---
 
-## What is it?
+## Qu'est-ce que c'est ?
 
-The `.toc` (Table of Contents) file is the **manifest** that tells WoW how to recognize and load your add-on. Without it, your folder is invisible.
+Le fichier `.toc` (Table of Contents) est le **manifeste** qui indique à WoW comment reconnaître et charger votre add-on. Sans lui, votre dossier est invisible.
 
-## Mandatory rules
+## Règles obligatoires
 
-1. **Filename must match folder name** — `HelloAzeroth/HelloAzeroth.toc`. If they differ, WoW silently ignores the entire folder. This is the #1 "my add-on doesn't show up" cause.
-2. **File placement** — Must be in `_classic_era_/Interface/AddOns/YourFolder/` (NOT `_retail_` or `_classic_`)
-3. **UTF-8 without BOM** — A BOM can corrupt the first directive (especially `## Interface:`)
+1. **Le nom du fichier doit correspondre au nom du dossier** — `HelloAzeroth/HelloAzeroth.toc`. S'ils diffèrent, WoW ignore silencieusement tout le dossier. C'est la cause #1 de « mon add-on n'apparaît pas ».
+2. **Emplacement du fichier** — Doit être dans `_classic_era_/Interface/AddOns/VotreDossier/` (PAS `_retail_` ou `_classic_`)
+3. **UTF-8 sans BOM** — Un BOM peut corrompre la première directive (surtout `## Interface:`)
 
-## Minimal valid `.toc`
+## `.toc` minimal valide
 
 ```
 ## Interface: 11508
@@ -25,7 +25,7 @@ The `.toc` (Table of Contents) file is the **manifest** that tells WoW how to re
 HelloAzeroth.lua
 ```
 
-## All available fields
+## Tous les champs disponibles
 
 ```toc
 ## Interface: 11508
@@ -44,52 +44,52 @@ HelloAzeroth.lua
 src\Utils.lua
 ```
 
-### Field details
+### Détail des champs
 
-| Field | Purpose | Required? |
-|-------|---------|-----------|
-| `## Interface:` | Game version number. If mismatched, add-on marked "out of date" | Practically yes |
-| `## Title:` | Name shown in add-on list. Defaults to folder name if absent | No |
-| `## Notes:` | Tooltip text on hover in add-on list | No |
-| `## Author:` | Creator name (informational, shown in add-on list) | No |
-| `## Version:` | Your version string (informational) | No |
-| `## SavedVariables:` | Global variables persisted to disk (all characters) | No |
-| `## SavedVariablesPerCharacter:` | Variables persisted per character | No |
-| `## Dependencies:` | Add-ons that MUST load before this one | No |
-| `## OptionalDeps:` | Add-ons that should load before this one if present | No |
-| `## DefaultState:` | `enabled` or `disabled` on first install | No |
-| `## LoadOnDemand:` | `1` = don't load at startup, load via `LoadAddOn()` | No |
+| Champ | Rôle | Requis ? |
+|-------|------|----------|
+| `## Interface:` | Numéro de version du jeu. S'il ne correspond pas, l'add-on est marqué « out of date » | Pratiquement oui |
+| `## Title:` | Nom affiché dans la liste des add-ons. Par défaut le nom du dossier si absent | Non |
+| `## Notes:` | Texte de l'info-bulle au survol dans la liste des add-ons | Non |
+| `## Author:` | Nom du créateur (informatif, affiché dans la liste) | Non |
+| `## Version:` | Votre chaîne de version (informatif) | Non |
+| `## SavedVariables:` | Variables globales persistées sur disque (tous les personnages) | Non |
+| `## SavedVariablesPerCharacter:` | Variables persistées par personnage | Non |
+| `## Dependencies:` | Add-ons qui DOIVENT se charger avant celui-ci | Non |
+| `## OptionalDeps:` | Add-ons qui doivent se charger avant celui-ci s'ils sont présents | Non |
+| `## DefaultState:` | `enabled` ou `disabled` à la première installation | Non |
+| `## LoadOnDemand:` | `1` = ne pas charger au démarrage, charger via `LoadAddOn()` | Non |
 
-## Interface version
+## Version d'interface
 
-The interface number follows the pattern `major * 10000 + minor * 100 + patch`:
+Le numéro d'interface suit le pattern `majeur * 10000 + mineur * 100 + patch` :
 - 1.15.4 → 11504
 - 1.15.7 → 11507
 - 1.15.8 → 11508
 
-**Always verify in-game**: `/dump select(4, GetBuildInfo())`
+**Toujours vérifier en jeu** : `/dump select(4, GetBuildInfo())`
 
-If the number is older than the client, the add-on is flagged "out of date" but can still load if the user checks **"Load out of date AddOns"**.
+Si le numéro est plus ancien que le client, l'add-on est marqué « out of date » mais peut quand même se charger si l'utilisateur coche **« Load out of date AddOns »**.
 
-## File list
+## Liste des fichiers
 
-- Files listed after the `##` headers are loaded **in order**, top to bottom
-- Subdirectories are allowed: `src\Core.lua` or `modules\Utils.lua`
-- If a listed file doesn't exist, that line is silently skipped
-- Only the first 1024 characters of each line are read
+- Les fichiers listés après les en-têtes `##` sont chargés **dans l'ordre**, de haut en bas
+- Les sous-répertoires sont autorisés : `src\Core.lua` ou `modules\Utils.lua`
+- Si un fichier listé n'existe pas, cette ligne est ignorée silencieusement
+- Seuls les 1024 premiers caractères de chaque ligne sont lus
 
-## Gotchas
+## Pièges courants
 
-1. **Don't forget `##`** before metadata lines. `Interface: 11508` without `##` is treated as a filename
-2. **Don't indent** comment lines — whitespace before `#` makes WoW treat it as a filename
-3. **Hidden extensions on Windows** — File might actually be `HelloAzeroth.toc.txt`
-4. **Double nesting** — Extracting a ZIP creates `AddOns/HelloAzeroth/HelloAzeroth/HelloAzeroth.toc` (one folder too deep)
-5. **Case sensitivity** — Keep folder name, `.toc` name, and file references consistent (especially cross-platform)
+1. **Ne pas oublier `##`** avant les lignes de métadonnées. `Interface: 11508` sans `##` est traité comme un nom de fichier
+2. **Ne pas indenter** les lignes de commentaires — un espace avant `#` fait que WoW la traite comme un nom de fichier
+3. **Extensions cachées sur Windows** — Le fichier peut en réalité s'appeler `HelloAzeroth.toc.txt`
+4. **Double imbrication** — L'extraction d'un ZIP crée `AddOns/HelloAzeroth/HelloAzeroth/HelloAzeroth.toc` (un dossier de trop)
+5. **Sensibilité à la casse** — Garder le nom du dossier, du `.toc` et les références de fichiers cohérents (surtout multi-plateforme)
 
-## Accessing metadata from code
+## Accéder aux métadonnées depuis le code
 
 ```lua
--- Get any ## field from your own add-on
+-- Récupérer n'importe quel champ ## de son propre add-on
 local version = C_AddOns.GetAddOnMetadata("HelloAzeroth", "Version")
 local notes = C_AddOns.GetAddOnMetadata("HelloAzeroth", "Notes")
 ```

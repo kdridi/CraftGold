@@ -1,38 +1,34 @@
-# Accessing the Add-on List in WoW Classic Era
+# Accès à la liste des add-ons dans WoW Classic Era
 
-> Consolidated from ChatGPT, Claude, and Gemini research (Session 1).
-> ⚠️ The exact menu path varies between sources — verify in-game.
+> Consolidé à partir des recherches ChatGPT, Claude et Gemini (Session 1).
+> ✅ Chemin en jeu vérifié en Session 2.
 
 ---
 
-## Two access points
+## Deux points d'accès
 
-### 1. Character Selection Screen
-- **"AddOns" button** in the **bottom-left** corner of the screen
-- This is the most reliable way to manage add-ons before entering the world
-- All 3 sources agree on this ✅
+### 1. Écran de sélection du personnage
+- Bouton **« AddOns »** dans le **coin inférieur gauche** de l'écran
+- C'est la façon la plus fiable de gérer les add-ons avant d'entrer dans le monde
+- Les 3 sources sont d'accord ✅
 
-### 2. In-Game (while logged in)
-- ⚠️ Disagreement between sources:
-  - Claude: Escape → **"AddOns" button** directly in the game menu
-  - Gemini: Escape → **Options → AddOns tab**
-  - ChatGPT: "Escape → System → Add-ons" (probably wrong)
-- **→ Verify in-game during Phase B of Capsule 01**
+### 2. En jeu (personnage connecté)
+- ✅ **Vérifié (Session 2)** : Échap → Menu principal → bouton **« Add-ons »**
 
-## What the add-on list shows
+## Ce que la liste des add-ons affiche
 
 | Info | Source |
 |------|--------|
-| Add-on title (`## Title:`) | Directly visible |
-| Version (`## Version:`) | May be visible |
-| Notes (`## Notes:`) | On hover/tooltip |
-| Enabled/disabled checkbox | Per add-on |
-| "Out of date" flag | If `## Interface:` doesn't match |
-| Missing dependencies | If required deps not found |
+| Titre de l'add-on (`## Title:`) | Visible directement |
+| Version (`## Version:`) | Peut être visible |
+| Notes (`## Notes:`) | Au survol / info-bulle |
+| Case à cocher activé/désactivé | Par add-on |
+| Indicateur « out of date » | Si `## Interface:` ne correspond pas |
+| Dépendances manquantes | Si les deps requises sont introuvables |
 
-## Key features
+## Fonctionnalités clés
 
-- **Enable/disable per add-on** — individual checkboxes
-- **"Load out of date AddOns"** — checkbox that allows loading add-ons with mismatched `## Interface:` version
-- **Character-specific vs account-wide** — dropdown at top to choose per-character or all-characters configuration
-- **Changes require `/reload`** — toggling add-ons on/off in-game shows a prompt to reload the UI
+- **Activer/désactiver par add-on** — cases à cocher individuelles
+- **« Load out of date AddOns »** — case à cocher permettant le chargement des add-ons avec une version `## Interface:` qui ne correspond pas
+- **Spécifique au personnage vs compte** — menu déroulant en haut pour choisir la configuration par personnage ou tous les personnages
+- **Les changements nécessitent `/reload`** — activer/désactiver des add-ons en jeu affiche une invite pour recharger l'UI

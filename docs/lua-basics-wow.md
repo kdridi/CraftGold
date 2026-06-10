@@ -1,116 +1,116 @@
-# Lua in WoW Classic Era
+# Lua dans WoW Classic Era
 
-> Consolidated from ChatGPT, Claude, and Gemini research (Session 1).
+> Consolidé à partir des recherches ChatGPT, Claude et Gemini (Session 1).
 
 ---
 
-## Lua version
+## Version de Lua
 
-**Lua 5.1** — all WoW flavors including Classic Era.
+**Lua 5.1** — toutes les versions de WoW y compris Classic Era.
 
-What this means for beginners:
-- ✅ `local`, tables, metatables, `#` length operator, `string.format()`, `pairs()`, `ipairs()`
-- ❌ No `//` (integer division), no `goto`, no bitwise operators in syntax (use `bit` library)
-- ❌ No `require()`, `dofile()`, `loadfile()` — WoW blocks filesystem access
+Ce que ça signifie pour les débutants :
+- ✅ `local`, tables, metatables, opérateur de longueur `#`, `string.format()`, `pairs()`, `ipairs()`
+- ❌ Pas de `//` (division entière), pas de `goto`, pas d'opérateurs bit à bit dans la syntaxe (utiliser la lib `bit`)
+- ❌ Pas de `require()`, `dofile()`, `loadfile()` — WoW bloque l'accès au système de fichiers
 
-## WoW modifications to standard Lua
+## Modifications de WoW par rapport au Lua standard
 
-### Removed (security)
-- `io` library (filesystem)
-- `os.execute()` (shell commands)
-- `require()`, `dofile()`, `loadfile()` (loading external files)
+### Supprimé (sécurité)
+- Bibliothèque `io` (système de fichiers)
+- `os.execute()` (commandes shell)
+- `require()`, `dofile()`, `loadfile()` (chargement de fichiers externes)
 
-### Kept
+### Conservé
 - `os.time()`, `os.date()`, `os.clock()`
 - `math.*`, `string.*`, `table.*`
 
-### Added by WoW
-- `strsplit(sep, str)`, `strjoin(sep, ...)` — string splitting/joining
-- `tinsert(table, value)`, `tremove(table, pos)` — table manipulation
-- `wipe(table)` — clear a table
-- `GetCoinTextureString(copper)` — format gold/silver/copper
-- The entire WoW API (`CreateFrame`, `GetItemInfo`, events, etc.)
+### Ajouté par WoW
+- `strsplit(sep, str)`, `strjoin(sep, ...)` — découpage/jonction de chaînes
+- `tinsert(table, value)`, `tremove(table, pos)` — manipulation de tables
+- `wipe(table)` — vider une table
+- `GetCoinTextureString(copper)` — formater or/argent/cuivre
+- Toute l'API WoW (`CreateFrame`, `GetItemInfo`, événements, etc.)
 
-## Output to chat
+## Affichage dans le chat
 
-### `print()` — recommended for beginners
+### `print()` — recommandé pour les débutants
 ```lua
-print("Hello Azeroth!")           -- simple message
-print("Value:", 42, nil, true)    -- handles multiple args, nil, any type
+print("Hello Azeroth!")           -- message simple
+print("Value:", 42, nil, true)    -- gère plusieurs args, nil, tout type
 ```
-- Routes to the default chat frame
-- Handles `nil` and multiple arguments gracefully
-- Cannot set text color directly
+- Affiche dans la fenêtre de chat par défaut
+- Gère `nil` et les arguments multiples gracieusement
+- Ne permet pas de colorer le texte directement
 
-### `DEFAULT_CHAT_FRAME:AddMessage()` — for colored output
+### `DEFAULT_CHAT_FRAME:AddMessage()` — pour la couleur
 ```lua
-DEFAULT_CHAT_FRAME:AddMessage("Hello in green!", 0, 1, 0)  -- RGB: 0-1 range
+DEFAULT_CHAT_FRAME:AddMessage("Hello en vert !", 0, 1, 0)  -- RGB : plage 0-1
 ```
-- Single string argument (must build it yourself)
-- Allows RGB color control (values 0.0 to 1.0)
-- Errors on `nil` — must convert to string first
+- Prend une seule chaîne en argument (il faut la construire soi-même)
+- Permet le contrôle de la couleur en RGB (valeurs de 0.0 à 1.0)
+- Erreur sur `nil` — il faut convertir en chaîne d'abord
 
-**Rule: use `print()` by default, `AddMessage` only when you need colors.**
+**Règle : utiliser `print()` par défaut, `AddMessage` seulement quand on a besoin de couleurs.**
 
-## Global scope and namespacing
+## Portée globale et espace de noms
 
-All files in an add-on share the **same Lua environment** — and that environment is shared with ALL other add-ons and Blizzard's own UI code.
+Tous les fichiers d'un add-on partagent le **même environnement Lua** — et cet environnement est partagé avec TOUS les autres add-ons et le code UI de Blizzard.
 
-### The vararg trick — private namespace
+### L'astuce du vararg — espace de noms privé
 ```lua
--- Every .lua file receives these as varargs:
+-- Chaque fichier .lua reçoit ceci en varargs :
 local addonName, ns = ...
--- addonName = "HelloAzeroth" (string)
--- ns = a table shared ONLY between files of this add-on
+-- addonName = "HelloAzeroth" (chaîne)
+-- ns = une table partagée UNIQUEMENT entre les fichiers de cet add-on
 ```
 
-### Bad vs Good
+### Mauvais vs Bon
 ```lua
--- ❌ BAD: pollutes global namespace, can overwrite other add-ons
+-- ❌ MAUVAIS : pollue l'espace global, peut écraser d'autres add-ons
 message = "Hello"
 function update() end
 
--- ✅ GOOD: use local or private namespace
+-- ✅ BON : utiliser local ou l'espace de noms privé
 local message = "Hello"
 ns.message = "Hello"
 ns.update = function() end
 ```
 
-### Never use these as variable names (they're WoW globals)
-`CreateFrame`, `print`, `select`, `format`, `time`, `wipe`, `pairs`, `ipairs`, `tinsert`, `strsplit`, `DEFAULT_CHAT_FRAME`, `UIParent`, `GameTooltip`... basically, if WoW defines it, don't overwrite it.
+### Ne jamais utiliser ces noms comme variables (ce sont des globales WoW)
+`CreateFrame`, `print`, `select`, `format`, `time`, `wipe`, `pairs`, `ipairs`, `tinsert`, `strsplit`, `DEFAULT_CHAT_FRAME`, `UIParent`, `GameTooltip`... en gros, tout ce que WoW définit, ne pas l'écraser.
 
-**Rule: `local` everything by default.**
+**Règle : `local` pour tout par défaut.**
 
-## Loading lifecycle
+## Cycle de chargement
 
-### When does code run?
+### Quand le code s'exécute-t-il ?
 
-1. **Loading screen** (after character selection, before entering world)
-   - WoW scans `Interface/AddOns/` for `.toc` files
-   - For each enabled add-on, loads `.lua` files in `.toc` order
-   - **Top-level code runs immediately** during this phase
-   - ⚠️ The chat frame may not be fully initialized yet — `print()` at top level may not be visible
+1. **Écran de chargement** (après la sélection du personnage, avant d'entrer dans le monde)
+   - WoW scanne `Interface/AddOns/` pour trouver les fichiers `.toc`
+   - Pour chaque add-on activé, charge les fichiers `.lua` dans l'ordre du `.toc`
+   - **Le code au top-level s'exécute immédiatement** pendant cette phase
+   - ⚠️ La fenêtre de chat peut ne pas être encore initialisée — `print()` au top-level peut ne pas être visible
 
-2. **After all files loaded** — `ADDON_LOADED` event fires (once per add-on)
-   - SavedVariables are now available
-   - Good place to initialize data
+2. **Après le chargement de tous les fichiers** — l'événement `ADDON_LOADED` se déclenche (une fois par add-on)
+   - Les SavedVariables sont maintenant disponibles
+   - Bon endroit pour initialiser les données
 
-3. **After all add-ons loaded** — `PLAYER_LOGIN` event fires
-   - All add-on code has executed
-   - UI is ready
-   - **Best event for a "hello world" message**
+3. **Après le chargement de tous les add-ons** — l'événement `PLAYER_LOGIN` se déclenche
+   - Tout le code des add-ons a été exécuté
+   - L'UI est prête
+   - **Meilleur événement pour un message « hello world »**
 
-4. **Entering world** — `PLAYER_ENTERING_WORLD` event fires
-   - Fires on login AND every zone/instance change
-   - Good for initial setup that needs the world to be loaded
+4. **Entrée dans le monde** — l'événement `PLAYER_ENTERING_WORLD` se déclenche
+   - Se déclenche au login ET à chaque changement de zone/instance
+   - Bon pour l'initialisation qui nécessite que le monde soit chargé
 
-### The loading screen trap
+### Le piège de l'écran de chargement
 
 ```lua
--- This runs during loading screen — player probably won't see it!
+-- Ça s'exécute pendant le loading screen — le joueur ne le verra probablement pas !
 print("Hello from top-level code")
 
--- This runs after the world loads — player will see it ✅
+-- Ça s'exécute après le chargement du monde — le joueur le verra ✅
 local f = CreateFrame("Frame")
 f:RegisterEvent("PLAYER_LOGIN")
 f:SetScript("OnEvent", function()
@@ -118,52 +118,46 @@ f:SetScript("OnEvent", function()
 end)
 ```
 
-## Error handling
+## Gestion des erreurs
 
-### Enable error display (essential for development)
+### Activer l'affichage des erreurs (indispensable pour le dev)
 ```
 /console scriptErrors 1
 ```
-Without this, Lua errors are **silently swallowed**. The add-on just stops working with no feedback.
+Sans ça, les erreurs Lua sont **silencieusement avalées**. L'add-on arrête juste de fonctionner sans aucun retour.
 
-### Common error messages
+### Messages d'erreur courants
 
-| Error | Meaning |
-|-------|---------|
-| `attempt to call a nil value` | Calling a function that doesn't exist (typo, or Retail-only API) |
-| `attempt to index a nil value` | Accessing `.field` on something that's nil (common with uninitialized SavedVariables) |
-| `unexpected symbol near 'x'` | Syntax error — check the line number |
+| Erreur | Signification |
+|--------|---------------|
+| `attempt to call a nil value` | Appel d'une fonction qui n'existe pas (faute de frappe, ou API Retail-only) |
+| `attempt to index a nil value` | Accès à `.champ` sur quelque chose qui est nil (courant avec des SavedVariables non initialisées) |
+| `unexpected symbol near 'x'` | Erreur de syntaxe — vérifier le numéro de ligne |
 
-### Advanced debugging tools (not for beginners)
-- `/console taintLog 2` — logs taint issues (secure/protected action conflicts). Too noisy for beginners.
-- **BugSack + BugGrabber** — third-party add-ons that provide a better error log. Worth mentioning as optional.
+### Outils de debug avancés (pas pour les débutants)
+- `/console taintLog 2` — journalise les problèmes de taint (conflits secure/protected). Trop bruyant pour les débutants.
+- **BugSack + BugGrabber** — add-ons tiers qui fournissent un meilleur journal d'erreurs. À mentionner comme optionnels.
 
-## `/reload` — the developer's best friend
+## `/reload` — le meilleur ami du développeur
 
-### What it does
-- Re-reads all files from disk
-- Re-executes all add-on Lua code from scratch
-- Wipes all Lua state (globals, locals, frames)
-- Writes SavedVariables to disk, then reads them back
-- Equivalent to a full UI restart without disconnecting
+### Ce qu'il fait
+- Relit tous les fichiers depuis le disque
+- Réexécute tout le code Lua des add-ons from scratch
+- Efface tout l'état Lua (globales, locales, frames)
+- Écrit les SavedVariables sur disque, puis les relit
+- Équivalent à un redémarrage complet de l'UI sans déconnexion
 
-### ⚠️ Unresolved: does `/reload` detect new add-on folders?
+### ✅ Vérifié en jeu (Session 2) : `/reload` détecte les nouveaux dossiers d'add-ons
 
-| Source | Says |
-|--------|------|
-| Claude | **Yes** — since Classic Era 1.14.0, `/reload` detects new folders and TOC changes |
-| Gemini | **No** — new add-on folders require a full client restart |
-| ChatGPT | **Maybe** — "generally yes but some cases may need restart" |
+La question est résolue : `/reload` détecte bien les nouveaux dossiers et les changements de TOC. Voir `open-questions.md` Q1 pour les détails.
 
-**→ Must be verified in-game during Phase B of Capsule 01.**
+### Ce qu'on sait avec certitude
+- Modifier un fichier `.lua` existant → `/reload` le prend en compte ✅
+- Les SavedVariables persistent à travers `/reload` ✅
+- Impossible de recharger un seul add-on ✅
 
-### What we know for sure
-- Editing an existing `.lua` file → `/reload` picks it up ✅ (all 3 agree)
-- SavedVariables persist across `/reload` ✅ (all 3 agree)
-- No way to reload a single add-on ✅ (all 3 agree)
+## Encodage des fichiers
 
-## File encoding
-
-- **UTF-8 without BOM** — both `.lua` and `.toc` files
-- Line endings: WoW tolerates both LF and CRLF
-- BOM (Byte Order Mark) can corrupt `.toc` headers → add-on appears "out of date" or fails to load
+- **UTF-8 sans BOM** — pour les fichiers `.lua` comme `.toc`
+- Fins de ligne : WoW tolère LF et CRLF
+- BOM (Byte Order Mark) peut corrompre les en-têtes `.toc` → l'add-on apparaît « out of date » ou ne se charge pas
