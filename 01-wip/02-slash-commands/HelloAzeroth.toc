@@ -1,0 +1,7 @@
+## Interface: 11508
+## Title: HelloAzeroth
+## Notes: Slash commands et chat colore
+## Author: Toi
+## Version: 1.0.0
+
+HelloAzeroth.lua
