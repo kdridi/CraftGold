@@ -18,14 +18,23 @@ Ce projet a un **double but** : produire un add-on fonctionnel ET apprendre à c
 **Avant chaque capsule**, l'agent identifie tout ce qu'il « sait » ou « suppose » pour cette capsule et génère un **méga-prompt de vérification**. Ce prompt couvre toutes les connaissances nécessaires : API, syntaxe Lua, comportements en jeu, exemples d'add-ons existants.
 
 1. L'agent liste ses hypothèses pour la capsule
-2. L'agent rédige un prompt exhaustif à copier dans Claude/Gemini
-3. L'utilisateur copie le prompt, récupère les réponses
-4. L'utilisateur rapporte les réponses
-5. L'agent traite les réponses, extrait les faits validés, identifie les corrections
-6. L'agent crée ou met à jour les fichiers dans `docs/` (base de connaissances validée)
-7. **Ce n'est qu'après cette étape** qu'on entre dans la Phase A (storytelling + checklist)
+2. L'agent rédige le prompt de recherche et l'écrit dans `prompts/research-capsule-XX-<slug>.md`
+3. L'agent crée les 3 fichiers de réponse vides dans `prompts/` :
+   - `research-capsule-XX-<slug>-response-claude.md`
+   - `research-capsule-XX-<slug>-response-gemini.md`
+   - `research-capsule-XX-<slug>-response-chatgpt.md`
+4. L'utilisateur copie le prompt dans Claude, Gemini et ChatGPT, puis colle chaque réponse dans le fichier correspondant
+5. L'utilisateur dit **« c'est bon »** quand les 3 réponses sont en place
+6. L'agent lit les 3 réponses, compare, extrait les faits validés, identifie les désaccords
+7. L'agent crée ou met à jour les fichiers dans `docs/` (base de connaissances validée)
+8. **Ce n'est qu'après cette étape** qu'on entre dans la Phase A (storytelling + checklist)
 
 **Règle** : les capsules sont construites depuis `docs/`, pas depuis le dataset de l'agent. Le dataset sert d'inspiration pour le parcours pédagogique ; `docs/` est la source de vérité pour les faits techniques.
+
+#### Règles de rédaction des prompts de recherche
+
+1. **Recherche sourcée obligatoire** — Chaque prompt doit exiger explicitement que le LLM fasse une **vraie recherche web** et fournisse des **liens sources** (URLs) pour chaque affirmation. On ne veut pas du savoir « training data » non vérifié, on veut des sources consultables (wowpedia, warcraft.wiki.gg, wowprogramming.com, forums, etc.).
+2. **Réponse monobloc en markdown** — Le prompt doit exiger que la **totalité** de la réponse soit en **markdown dans un seul bloc texte**. Pas de fichiers séparés, pas d'artifacts, pas de pièces jointes à télécharger. Le code, les exemples, tout doit être inline dans la réponse markdown.
 
 #### Répertoire `docs/`
 

@@ -18,7 +18,7 @@ print("Value:", 42, nil)    -- "Value:  42  nil"
 
 - Accepte plusieurs arguments de n'importe quel type
 - Gère `nil` gracieusement
-- Pas de couleur possible directement
+- Supporte les codes couleur `|cFFRRGGBB...|r` (le chat les interprète)
 - **Visible même au top-level** après `/reload` (vérifié Session 2)
 
 ---
@@ -136,4 +136,84 @@ local version, build, date, tocVersion = GetBuildInfo()
 -- build      = numéro de build
 -- date       = date du build
 -- tocVersion = 11508
+```
+
+---
+
+## Slash Commands
+
+### `SlashCmdList`
+
+**Rôle** : Table globale où les add-ons enregistrent leurs handlers de slash commands.
+
+```lua
+SlashCmdList["HELLOAZEROTH"] = function(msg, editBox)
+    -- handler
+end
+```
+
+- La clé doit correspondre exactement au token dans `SLASH_<TOKEN>N`
+- Écraser une clé existante = remplacer le handler
+
+### `SLASH_<TOKEN>N` (globals)
+
+**Rôle** : Déclarent les aliases d'une slash command.
+
+```lua
+SLASH_HELLOAZEROTH1 = "/helloazeroth"
+SLASH_HELLOAZEROTH2 = "/ha"
+```
+
+- Numéros consécutifs obligatoires (1, 2, 3...)
+- Convention : token en MAJUSCULES
+
+---
+
+## Chat
+
+### `DEFAULT_CHAT_FRAME:AddMessage(msg [, r, g, b])`
+
+**Rôle** : Affiche un message dans une frame de chat spécifique.
+
+```lua
+DEFAULT_CHAT_FRAME:AddMessage("Message rouge", 1.0, 0.0, 0.0)
+DEFAULT_CHAT_FRAME:AddMessage("|cFF33FF99[Addon]|r Message")  -- codes couleur OK
+```
+
+- `r, g, b` : valeurs 0.0–1.0, optionnelles
+- Paramètres supplémentaires optionnels : `messageId`, `holdTime`
+- Ne gère pas `nil` — utiliser `tostring()` si nécessaire
+
+---
+
+## Strings (extensions WoW)
+
+### `strtrim(str [, chars])`
+
+**Rôle** : Retire les espaces (ou les caractères spécifiés) en début et fin de chaîne.
+
+```lua
+strtrim("  hello  ")      -- "hello"
+strtrim("  hello  ", " h") -- "ello"
+```
+
+### `strsplit(sep, str [, pieces])`
+
+**Rôle** : Découpe une chaîne selon un délimiteur brut. Retourne plusieurs valeurs.
+
+```lua
+local a, b, c = strsplit(" ", "un deux trois quatre", 3)
+-- a = "un", b = "deux", c = "trois quatre"
+```
+
+- ⚠️ Délimiteur brut, pas un pattern Lua
+- Mal adapté aux espaces multiples consécutifs
+
+### `strsplittable(sep, str [, pieces])`
+
+**Rôle** : Identique à `strsplit` mais retourne un tableau.
+
+```lua
+local parts = strsplittable(" ", "a b c")
+-- parts = {"a", "b", "c"}
 ```

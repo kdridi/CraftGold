@@ -40,7 +40,7 @@ print("Value:", 42, nil, true)    -- gère plusieurs args, nil, tout type
 ```
 - Affiche dans la fenêtre de chat par défaut
 - Gère `nil` et les arguments multiples gracieusement
-- Ne permet pas de colorer le texte directement
+- Ne permet pas de colorer directement via des paramètres, **mais** les codes couleur `|cFFRRGGBBtexte|r` sont interprétés
 
 ### `DEFAULT_CHAT_FRAME:AddMessage()` — pour la couleur
 ```lua
@@ -50,7 +50,26 @@ DEFAULT_CHAT_FRAME:AddMessage("Hello en vert !", 0, 1, 0)  -- RGB : plage 0-1
 - Permet le contrôle de la couleur en RGB (valeurs de 0.0 à 1.0)
 - Erreur sur `nil` — il faut convertir en chaîne d'abord
 
-**Règle : utiliser `print()` par défaut, `AddMessage` seulement quand on a besoin de couleurs.**
+**Règle : utiliser `print()` par défaut, `AddMessage` seulement quand on a besoin de couleurs par paramètre RGB.**
+
+### Codes couleur (UI Escape Sequences)
+
+Toutes les méthodes d'affichage (`print`, `AddMessage`, `SetFontString`, etc.) interprètent les séquences de couleur :
+
+```
+|cAARRGGBBtexte|r
+```
+
+- `|c` = début, `|r` = fin (restaure la couleur précédente)
+- `AA` = alpha (ignoré pour le texte, toujours `FF`)
+- `RRGGBB` = couleur hexadécimale
+
+```lua
+print("|cFFFF0000Rouge|r et |cFF00FF00Vert|r")
+DEFAULT_CHAT_FRAME:AddMessage("|cFF33FF99[MonAddon]|r Message")
+```
+
+Source : [warcraft.wiki.gg — UI escape sequences](https://warcraft.wiki.gg/wiki/UI_escape_sequences)
 
 ## Portée globale et espace de noms
 
