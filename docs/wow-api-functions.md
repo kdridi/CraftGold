@@ -27,18 +27,19 @@ print("Value:", 42, nil)    -- "Value:  42  nil"
 
 ### `CreateFrame(frameType [, name] [, parent] [, template])`
 
-**Rôle** : Crée un élément d'interface (frame). Les frames sont des conteneurs invisibles qui peuvent afficher du texte, recevoir des cliccs, écouter des événements, etc.
+**Rôle** : Crée un élément d'interface (frame). Les frames sont des conteneurs invisibles qui peuvent afficher du texte, recevoir des clics, écouter des événements, etc.
 
 **Paramètres** :
 - `frameType` (string, requis) — Type de frame : `"Frame"`, `"Button"`, `"Slider"`, `"EditBox"`, `"ScrollFrame"`, etc.
-- `name` (string, optionnel) — Nom global de la frame (utile pour le debug). `nil` = anonyme.
-- `parent` (frame, optionnel) — Frame parente. Les enfants héritent de la visibilité et de l'échelle du parent. `nil` = pas de parent.
-- `template` (string, optionnel) — Template XML hérité (ex: `"UIPanelButtonTemplate"`).
+- `name` (string, optionnel) — Nom global de la frame (utile pour le debug). `nil` = anonyme. Si fourni, crée `_G[name]`.
+- `parent` (frame, optionnel) — Frame parente. Les enfants héritent de la visibilité et de l'échelle du parent. `nil` = pas de parent. ⚠️ **UIParent n'est PAS ajouté automatiquement si nil**.
+- `template` (string, optionnel) — Template(s) XML hérité(s). Plusieurs templates séparés par des virgules : `"BackdropTemplate, BasicFrameTemplate"`.
 
 ```lua
 local frame = CreateFrame("Frame")                      -- frame anonyme, sans parent
-local frame = CreateFrame("Frame", "MyFrame")           -- frame nommée
+local frame = CreateFrame("Frame", "MyFrame")           -- frame nommée (_G["MyFrame"] existe)
 local frame = CreateFrame("Frame", "MyFrame", UIParent) -- frame attachée à l'UI
+local frame = CreateFrame("Frame", "MyFrame", UIParent, "BackdropTemplate") -- avec backdrop
 local btn = CreateFrame("Button", "MyBtn", UIParent, "UIPanelButtonTemplate")
 ```
 
@@ -47,9 +48,16 @@ local btn = CreateFrame("Button", "MyBtn", UIParent, "UIPanelButtonTemplate")
 |------|------|
 | `"Frame"` | Conteneur de base, invisible — utilisé pour écouter des événements |
 | `"Button"` | Cliquable, a des états (normal, survolé, pressé) |
+| `"CheckButton"` | Bouton à cocher |
 | `"Slider"` | Barre de défilement ou slider de valeur |
 | `"EditBox"` | Zone de saisie de texte |
 | `"ScrollFrame"` | Zone avec défilement |
+| `"StatusBar"` | Barre de progression |
+| `"GameTooltip"` | Infobulle |
+| `"Cooldown"` | Affichage de cooldown |
+| `"MessageFrame"` | Zone de messages |
+
+⚠️ `FontString` et `Texture` ne se créent **pas** via `CreateFrame` — utiliser `frame:CreateFontString()` et `frame:CreateTexture()`.
 
 ---
 
@@ -90,6 +98,13 @@ end)
 | `"OnUpdate"` | À chaque frame (~60 fois/sec) — Attention performance |
 | `"OnShow"` | La frame devient visible |
 | `"OnHide"` | La frame est masquée |
+| `"OnDragStart"` | Un drag commence (bouton enregistré via `RegisterForDrag`) |
+| `"OnDragStop"` | Le drag s'arrête (relâchement du bouton) |
+| `"OnMouseDown"` | Bouton de souris pressé sur la frame |
+| `"OnMouseUp"` | Bouton de souris relâché sur la frame |
+| `"OnMouseWheel"` | Molette de souris sur la frame |
+| `"OnKeyDown"` | Touche clavier pressée (si `EnableKeyboard(true)`) |
+| `"OnKeyUp"` | Touche clavier relâchée |
 
 ---
 
@@ -115,6 +130,156 @@ end)
 local version = C_AddOns.GetAddOnMetadata("HelloAzeroth", "Version")
 local notes = C_AddOns.GetAddOnMetadata("HelloAzeroth", "Notes")
 ```
+
+---
+
+## Taille et position des frames
+
+### `frame:SetSize(width, height)`
+
+**Rôle** : Définit la largeur et la hauteur en une fois. Équivalent à `SetWidth(width) + SetHeight(height)`.
+
+```lua
+frame:SetSize(400, 300)
+```
+
+- Unité : unités UI (affectées par le UI Scale)
+- ⚠️ Ignoré si la taille est déjà déduite de 2 ancres opposées
+
+### `frame:SetPoint(point [, relativeTo [, relativePoint]] [, offsetX, offsetY])`
+
+**Rôle** : Positionne la frame par rapport à un point d'ancrage.
+
+```lua
+frame:SetPoint("CENTER")                            -- centre sur le parent
+frame:SetPoint("TOPLEFT", 10, -10)                  -- décalé depuis le parent
+frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)  -- forme complète
+```
+
+- 9 points : `TOPLEFT`, `TOP`, `TOPRIGHT`, `LEFT`, `CENTER`, `RIGHT`, `BOTTOMLEFT`, `BOTTOM`, `BOTTOMRIGHT`
+- Multi-ancrage possible (appeler plusieurs fois) → ⚠️ appeler `ClearAllPoints()` avant de changer
+
+### `frame:ClearAllPoints()`
+
+**Rôle** : Supprime toutes les ancres. À appeler avant un nouveau `SetPoint` si on change de position.
+
+## Backdrop (fond et bordure)
+
+### ⚠️ `BackdropTemplate` obligatoire en Classic Era 1.15.x
+
+Depuis le patch 9.0 (rétroporté à Classic 1.14.0), `SetBackdrop` n'existe que sur les frames héritant de `BackdropTemplate` :
+
+```lua
+local frame = CreateFrame("Frame", "MyFrame", UIParent, "BackdropTemplate")
+```
+
+### `frame:SetBackdrop(backdropTable)`
+
+**Rôle** : Applique un fond et/ou une bordure à la frame.
+
+```lua
+frame:SetBackdrop({
+    bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+    edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+    tile = true, tileSize = 32, edgeSize = 32,
+    insets = { left = 11, right = 12, top = 12, bottom = 11 },
+})
+```
+
+- Peut utiliser un backdrop prédéfini : `frame:SetBackdrop(BACKDROP_DIALOG_32_32)`
+- `SetBackdrop(nil)` retire le backdrop
+- ⚠️ **Toujours appeler avant** `SetBackdropColor` / `SetBackdropBorderColor`
+
+### `frame:SetBackdropColor(r, g, b [, a])`
+
+**Rôle** : Teinte le fond. Valeurs 0.0–1.0 (pas 0–255).
+
+### `frame:SetBackdropBorderColor(r, g, b [, a])`
+
+**Rôle** : Teinte la bordure. Valeurs 0.0–1.0.
+
+## Drag (déplacement)
+
+### `frame:SetMovable(movable)`
+
+**Rôle** : Autorise la frame à être déplacée. `true`/`false`.
+
+### `frame:EnableMouse(enable)`
+
+**Rôle** : Permet à la frame de recevoir les événements de souris. **Obligatoire** pour le drag.
+
+### `frame:RegisterForDrag(button, ...)`
+
+**Rôle** : Enregistre quels boutons de souris déclenchent `OnDragStart`.
+
+```lua
+frame:RegisterForDrag("LeftButton")
+frame:RegisterForDrag("LeftButton", "RightButton")
+```
+
+- Boutons : `"LeftButton"`, `"RightButton"`, `"MiddleButton"`, `"Button4"`, `"Button5"`
+- Un nouvel appel **remplace** les précédents
+
+### `frame:StartMoving()`
+
+**Rôle** : Commence le déplacement de la frame (appelé dans `OnDragStart`).
+
+- Peut être utilisé directement comme handler : `frame:SetScript("OnDragStart", frame.StartMoving)`
+
+### `frame:StopMovingOrSizing()`
+
+**Rôle** : Arrête le déplacement et fixe la nouvelle position (appelé dans `OnDragStop`).
+
+- Active le flag "user placed" sur les frames nommées
+
+### `frame:SetClampedToScreen(clamped)`
+
+**Rôle** : Si `true`, empêche la frame de sortir des limites de l'écran.
+
+### `frame:SetUserPlaced(userPlaced)`
+
+**Rôle** : Si `false`, désactive la sauvegarde automatique de la position par le client.
+
+## Visibilité
+
+### `frame:Show()` / `frame:Hide()` / `frame:SetShown(bool)`
+
+**Rôle** : Affiche, masque, ou bascule la visibilité de la frame.
+
+### `frame:IsShown()` vs `frame:IsVisible()`
+
+- `IsShown()` : la frame *veut* être visible (ne dépend pas des parents)
+- `IsVisible()` : la frame est *réellement* à l'écran (prend en compte les parents)
+
+## Strata et Level
+
+### `frame:SetFrameStrata(strata)`
+
+**Rôle** : Définit la couche d'affichage. Les stratas (de l'arrière vers l'avant) :
+
+```
+BACKGROUND → LOW → MEDIUM → HIGH → DIALOG → FULLSCREEN → FULLSCREEN_DIALOG → TOOLTIP
+```
+
+- Défaut pour les enfants de `UIParent` : `MEDIUM`
+
+### `frame:SetFrameLevel(level)`
+
+**Rôle** : Définit l'ordre dans la même strata (0–10000). La strata gagne toujours sur le level.
+
+## Texte dans une frame
+
+### `frame:CreateFontString(name, drawLayer, template)`
+
+**Rôle** : Crée un texte (FontString) attaché à la frame.
+
+```lua
+local title = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+title:SetPoint("TOP", frame, "TOP", 0, -16)
+title:SetText("Mon titre")
+```
+
+Fonts courantes : `"GameFontNormal"`, `"GameFontNormalLarge"`, `"GameFontHighlight"`, `"GameFontWhite"`.
 
 ---
 
