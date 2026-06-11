@@ -208,6 +208,41 @@ Source de données pour les recettes : voir `prompts/multiagent-recipe-architect
 - **Règle de design** : stocker les composants en **itemID**, pas en nom
 - **Règle de design** : structurer la DB pour que l'API puisse overrider les entrées (passage v1→v2 sans rewrite)
 
+### Outils de debugging WoW (Capsule 00 — validé Session 13)
+
+**⛔ Règle #0 : ne JAMAIS demander à l'utilisateur de lire et recopier le chat.** Utiliser le pattern de capture ci-dessous.
+
+#### Skill disponible
+
+Le skill `.pi/skills/wow-dev-debug/SKILL.md` contient la documentation complète des outils. **L'activer** quand l'utilisateur rencontre une erreur, veut inspecter un état, profiler, ou explorer l'API.
+
+#### Pattern de capture agent↔utilisateur
+
+L'add-on ManualListings expose `ns` en global via `_G.cgNS = ns` :```
+/cg log on                                        → Activer capture
+/run cgNS.WoW.print("debug info")                → Logger via ns
+/reload                                           → Flush sur disque
+→ L'agent lit SavedVariables                       → Plus rien à recopier
+```
+
+Chemin SavedVariables : `WTF/Account/125818886#1/SavedVariables/ManualListings.lua`
+
+#### Commandes essentielles
+
+| Commande | Usage |
+|----------|-------|
+| `/dump <expr>` | Évalue et affiche dans le chat |
+| `/run <code>` | Exécute du Lua (utiliser `cgNS.*` pour accéder à l'add-on) |
+| `/etrace` | Traceur d'événements temps réel (filtrable, toggle) |
+| `/fstack` | Survol visuel des frames (toggle, ALT pour naviguer) |
+| `/tinspect <table>` | Inspecteur de tables en arbre |
+| `/bugsack show` | Voir les erreurs Lua capturées (stack complète) |
+| `debugprofilestart()` / `debugprofilestop()` | Micro-benchmark en ms |
+
+#### Add-ons dev installés
+
+!BugGrabber, BugSack, DevTool — installés via CurseForge.
+
 ### Types de capsules
 
 | Type | Définition |
