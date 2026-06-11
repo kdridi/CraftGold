@@ -105,6 +105,14 @@ ownerFullName, saleStatus, itemId, hasAllInfo = GetAuctionItemInfo("list", index
 
 - `AUCTION_ITEM_LIST_UPDATE` — se déclenche quand les résultats de la requête sont prêts
 - Peut se déclencher **plusieurs fois** au fur et à mesure que les données se résolvent (vérifier `hasAllInfo`)
+- `AUCTION_HOUSE_SHOW` — se déclenche quand l'HdV s'ouvre
+- `AUCTION_HOUSE_CLOSED` — se déclenche quand l'HdV se ferme
+
+### Pièges découverts en jeu (Session 17)
+
+1. **`QueryAuctionItems` échoue silencieusement** si l'HdV n'est pas ouvert. Aucun événement `AUCTION_ITEM_LIST_UPDATE` ne se déclenche. Le scanner peut rester bloqué dans l'état "active" à jamais si l'HdV est fermé entre le lancement du scan et la réception des résultats.
+2. **`CanSendAuctionQuery()`** — le code source Blizzard appelle `CanSendAuctionQuery("list")` avec un argument, mais la version sans argument fonctionne aussi.
+3. **`exactMatch=true`** — le code Blizzard extrait le texte entre guillemets (`"Copper Bar"`) et active `exactMatch`. Sans guillemets, c'est une recherche de sous-chaîne.
 
 ### Exemple : trouver le buyout le moins cher pour un item
 

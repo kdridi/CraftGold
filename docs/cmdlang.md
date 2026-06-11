@@ -127,3 +127,22 @@ Après le deuxième register, `price 2589 100` échouait car le handler avait é
 **Fix** : `register()` merge les inscriptions successives du même nom (handler + args de l'une, subs de l'autre, fusionnés).
 
 **Bonne pratique** : utiliser un seul `register` avec handler + subs (nœud hybride) quand possible. Le merge existe pour les cas où c'est inévitable.
+
+### Bug help() — nœuds hybrides (Session 17)
+
+`generateHelp()` traitait les nœuds en `if/else` : soit branche (subs), soit feuille (handler+args). Les nœuds hybrides (handler + subs) perdaient la ligne d'usage du handler dans `/cg help`.
+
+**Avant le fix** : `/cg scan` avec `args={itemID:int}` et `subs={cancel=...}` affichait uniquement :
+```
+scan — Scan AH for an item
+  scan cancel — Cancel scan
+```
+
+**Après le fix** : le handler est aussi affiché :
+```
+scan — Scan AH for an item
+  /cg scan <itemID>  — Scan AH for an item   (ligne ajoutée)
+  scan cancel — Cancel scan
+```
+
+**Fix** : dans `walkTree`, quand un nœud a des subs ET un handler avec args, afficher la ligne d'usage du handler en plus de la branche.

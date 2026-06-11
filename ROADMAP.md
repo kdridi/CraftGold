@@ -111,7 +111,7 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
 | 11 | Quote DP + CmdLang | DP covering knapsack 0/1 exact, `quote(itemID, quantity)`, surplus, parser déclaratif CmdLang, types, help auto, conditions dynamiques | Autonomous | ✅ |
 | 12 | Bill of Materials | Expansion récursive d'un craft en quantités agrégées de matières premières, `/cg shoplist` | Autonomous | ✅ |
 | 13 | Buy vs Craft v2 | Refonte du calculateur avec `quote(itemID, qty)` au lieu de prix unitaire, `/cg analyze` mis à jour | Autonomous | ✅ |
-| 14 | AH Scanner v1 | `QueryAuctionItems`, filtrage par itemID, événement `AUCTION_ITEM_LIST_UPDATE`, scan d'un item | Semi-autonomous | 🔲 |
+| 14 | AH Scanner v1 | `QueryAuctionItems`, filtrage par itemID, événement `AUCTION_ITEM_LIST_UPDATE`, scan d'un item | Semi-autonomous | ✅ |
 | 15 | AH Scanner v2 | Pagination (50 résultats/page), throttling, file d'attente, fraîcheur des données | Semi-autonomous | 🔲 |
 
 ## Phase 5 — Produit MVP
@@ -163,7 +163,7 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
 | Phase 1 — Bases | 3 | ✅ Terminé |
 | Phase 2 — UI minimale | 2 | ✅ Terminé |
 | Phase 3 — Cœur métier | 3 | ✅ Terminé |
-| Phase 4 — Données réelles | 7 | 🔄 En cours (00, 09-13 faits, 14-15 à faire) |
+| Phase 4 — Données réelles | 7 | 🔄 En cours (00, 09-14 faits, 15 à faire) |
 | Phase 5 — Produit MVP | 2 | 🔲 À faire |
 | Phase 6 — Leveling Planner | 4 | 🔲 À faire |
 | **Total** | **21** | |
@@ -448,3 +448,26 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
 - ✅ **124 tests busted** au total (0 failures)
 - ✅ **35 tests in-game** (0 failures)
 - ✅ `docs/cmdlang.md` mis à jour (section bug register merge)
+
+### Session 17 — Capsule 14 (AH Scanner v1) complétée
+- ✅ Phase 0 : API AH validée depuis le code source Blizzard exporté (`Blizzard_AuctionUI/Classic/Blizzard_AuctionUI.lua`)
+- ✅ Signature exacte `QueryAuctionItems` confirmée : `(text, minLevel, maxLevel, page, usable, rarity, getAll, exactMatch, filterData)`
+- ✅ `GetAuctionItemInfo("list", index)` retourne 18 valeurs dont `itemId`, `buyoutPrice`, `count`, `hasAllInfo`
+- ✅ `NUM_AUCTION_ITEMS_PER_PAGE = 50` confirmé (`Blizzard_AuctionData.lua`)
+- ✅ `CanSendAuctionQuery("list")` prend un argument (contrairement à la doc existante)
+- ✅ `DequoteString()` découvert : l'UI Blizzard extrait les guillemets pour activer `exactMatch`
+- ✅ Capsule 14 (AH Scanner v1) implémentée et testée en jeu :
+  - Module `Scanner.lua` : scan asynchrone d'un item via `QueryAuctionItems`
+  - Filtrage par `itemId == targetItemID` (élimine recettes, homonymes)
+  - Filtrage par `buyoutPrice > 0` (achat direct uniquement)
+  - `/cg scan <itemID>` → scan + injection automatique dans `Listings`
+  - `/cg scan cancel` → annulation manuelle
+  - Condition CmdLang dynamique : `/cg scan` indisponible si HdV fermé
+  - Événements : `AUCTION_HOUSE_SHOW`, `AUCTION_HOUSE_CLOSED`, `AUCTION_ITEM_LIST_UPDATE`
+  - Auto-cancel du scan quand l'HdV se ferme (`setAHOpen(false)` → `cancel()`)
+- ✅ Seam `WoW.lua` enrichi : `CanSendAuctionQuery`, `QueryAuctionItems`, `GetNumAuctionItems`, `GetAuctionItemInfo`
+- ✅ **Bug CmdLang help() découvert et corrigé** : nœuds hybrides (handler + subs) perdaient la ligne d'usage du handler
+- ✅ **146 tests busted** au total (0 failures)
+- ✅ **18 tests in-game** pour le Scanner (0 failures)
+- ✅ `docs/wow-api.md` enrichi (événements AH, pièges en jeu)
+- ✅ `docs/cmdlang.md` enrichi (section bug help hybride)
