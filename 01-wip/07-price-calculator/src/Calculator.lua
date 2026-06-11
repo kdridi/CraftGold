@@ -139,33 +139,3 @@ function Calculator.analyze()
     table.sort(results, function(a, b) return a.profit > b.profit end)
     return results
 end
-
--------------------------------------------------
--- Public API: list items where crafting is cheaper than buying
--------------------------------------------------
--- Finds intermediate items where craft < buy
-function Calculator.savings()
-    local state = { cache = {}, visiting = {} }
-    local results = {}
-
-    for _, recipe in pairs(ns.DB.recipes) do
-        local outputID = recipe.output
-        local buyPrice = ns.Prices.get(outputID)
-
-        if buyPrice then
-            local costResult = Calculator._calculate(outputID, state)
-            if costResult and costResult.method == "craft" and costResult.buyPrice then
-                local saving = costResult.buyPrice - costResult.cost
-                results[#results + 1] = {
-                    itemID    = outputID,
-                    buyPrice  = costResult.buyPrice,
-                    craftCost = costResult.cost,
-                    saving    = saving,
-                }
-            end
-        end
-    end
-
-    table.sort(results, function(a, b) return a.saving > b.saving end)
-    return results
-end

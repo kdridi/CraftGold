@@ -91,7 +91,7 @@ calculate(itemID):
    ```
    /cg cost 4363              -- Copper Modulator: breakdown complet
    /cg analyze                -- Top crafts rentables
-   /cg savings                -- Items cheaper to craft than buy
+   /cg analyze                -- Top crafts rentables
    /cg price list             -- Tous les prix
    ```
 6. Tester : `/cg test`
@@ -147,7 +147,7 @@ calculate(itemID):
 
 ### busted (41 tests, 0 failure)
 - `test_money.lua` — Money.parse, Money.format, round-trip
-- `test_calculator.lua` — Prices, Calculator (raw, simple, complex, cycles, analyze, savings, breakdown)
+- `test_calculator.lua` — Prices, Calculator (raw, simple, complex, cycles, analyze, breakdown)
 
 ### In-game (`/cg test`)
 - ~30 assertions couvrant tout le pipeline : parse, format, prix, calcul, cycles, analyze

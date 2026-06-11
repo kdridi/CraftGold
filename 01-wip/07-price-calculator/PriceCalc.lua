@@ -27,8 +27,6 @@ SlashCmdList["PRICECALC"] = function(input)
         cmdCost(args)
     elseif args[1]:lower() == "analyze" then
         cmdAnalyze()
-    elseif args[1]:lower() == "savings" then
-        cmdSavings()
     elseif args[1]:lower() == "test" then
         RunInGameTests()
     else
@@ -48,7 +46,6 @@ function cmdHelp()
     ns.WoW.print("  |cFFFFFF00/cg price remove <itemID>|r — Remove a price")
     ns.WoW.print("  |cFFFFFF00/cg cost <itemID>|r — Show recursive cost breakdown")
     ns.WoW.print("  |cFFFFFF00/cg analyze|r — Show profitable crafts")
-    ns.WoW.print("  |cFFFFFF00/cg savings|r — Show items cheaper to craft than buy")
     ns.WoW.print("  |cFFFFFF00/cg test|r — Run in-game tests")
     ns.WoW.print("  |cFFFFFF00/cg help|r — Show this help")
 end
@@ -213,31 +210,6 @@ function cmdAnalyze()
 end
 
 -------------------------------------------------
--- /cg savings
--------------------------------------------------
-
-function cmdSavings()
-    local results = ns.Calculator.savings()
-
-    if #results == 0 then
-        ns.WoW.print("|cFF00FF00[CraftGold]|r No savings found.")
-        ns.WoW.print("  Set buy prices for intermediate items to compare craft vs buy.")
-        return
-    end
-
-    ns.WoW.print(string.format("|cFF00FF00[CraftGold]|r Craft vs Buy savings:", #results))
-    for i, entry in ipairs(results) do
-        local name = ns.WoW.GetItemInfo(entry.itemID) or ("item:" .. entry.itemID)
-        ns.WoW.print(string.format(
-            "  %s — Buy: %s — Craft: %s — Save: |cFF00FF00%s|r",
-            name,
-            ns.Money.formatColored(entry.buyPrice),
-            ns.Money.formatColored(entry.craftCost),
-            ns.Money.format(entry.saving)))
-    end
-end
-
--------------------------------------------------
 -- In-game test runner
 -------------------------------------------------
 
@@ -276,8 +248,8 @@ function RunInGameTests()
     ns.WoW.print("|cFF00FF00--- Money.format ---|r")
 
     assert2(Money.format(10000) == "1g", "10000 should format as 1g")
-    assert2(Money.format(1240) == "12s40c", "1240 should format as 12s40c")
-    assert2(Money.format(15030) == "1g50s30c", "15030 should format as 1g50s30c")
+    assert2(Money.format(1240) == "12s 40c", "1240 should format as 12s 40c")
+    assert2(Money.format(15030) == "1g 50s 30c", "15030 should format as 1g 50s 30c")
     assert2(Money.format(0) == "0c", "0 should format as 0c")
     assert2(Money.format(nil) == "—", "nil should format as —")
     assert2(Money.format(100) == "1s", "100 should format as 1s")
@@ -393,12 +365,6 @@ function RunInGameTests()
         end
     end
     assert2(found, "Copper Modulator should appear in analyze results")
-
-    -- ====== Savings ======
-    ns.WoW.print("|cFF00FF00--- Savings ---|r")
-
-    local savings = Calculator.savings()
-    assert2(#savings > 0, "Should find savings (Copper Bolts)")
 
     -- ====== Summary ======
     ns.WoW.print(string.format(

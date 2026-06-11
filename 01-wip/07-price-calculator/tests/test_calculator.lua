@@ -263,31 +263,6 @@ describe("Calculator.analyze", function()
     end)
 end)
 
-describe("Calculator.savings", function()
-    before_each(resetPrices)
-
-    it("finds items cheaper to craft than buy", function()
-        Prices.set(2840, 1240)  -- Copper Bar
-        Prices.set(4359, 1800)  -- Copper Bolts buy at 18s, craft at 12s40c
-
-        local results = Calculator.savings()
-        assert.is_true(#results > 0)
-
-        -- Copper Bolts should appear: buy 1800, craft 1240, save 560
-        local found = false
-        for _, entry in ipairs(results) do
-            if entry.itemID == 4359 then
-                found = true
-                assert.equals(1800, entry.buyPrice)
-                assert.equals(1240, entry.craftCost)
-                assert.equals(560, entry.saving)
-                break
-            end
-        end
-        assert.is_true(found)
-    end)
-end)
-
 describe("Breakdown structure", function()
     before_each(resetPrices)
 
