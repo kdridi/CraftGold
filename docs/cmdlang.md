@@ -113,3 +113,17 @@ Sans handler sur le nœud parent, le comportement inchangé : sous-commande obli
 ### Bug connu : `pairs()` en Lua
 
 `{ itemID = "int", count = "int" }` ne préserve pas l'ordre. Il faut un tableau ordonné : `{ "itemID:int", "count:int" }`. Découvert par 3/4 LLM.
+
+### Bug corrigé : `register()` écrasement (Capsule 13)
+
+Appeler deux fois `register` avec le même nom écrasait la première inscription :
+```lua
+cmd:register { name = "price", handler = setHandler }  -- perdu !
+cmd:register { name = "price", subs = { list = ..., remove = ... } }
+```
+
+Après le deuxième register, `price 2589 100` échouait car le handler avait été remplacé par le sous-arbre.
+
+**Fix** : `register()` merge les inscriptions successives du même nom (handler + args de l'une, subs de l'autre, fusionnés).
+
+**Bonne pratique** : utiliser un seul `register` avec handler + subs (nœud hybride) quand possible. Le merge existe pour les cas où c'est inévitable.

@@ -110,7 +110,7 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
 | 10 | Manual Listings | Remplacer `price[item]` par `listings[item] = {{count, buyout}, …}`, saisie manuelle `/cg listing add`, prix par stack vs unité | Autonomous | ✅ |
 | 11 | Quote DP + CmdLang | DP covering knapsack 0/1 exact, `quote(itemID, quantity)`, surplus, parser déclaratif CmdLang, types, help auto, conditions dynamiques | Autonomous | ✅ |
 | 12 | Bill of Materials | Expansion récursive d'un craft en quantités agrégées de matières premières, `/cg shoplist` | Autonomous | ✅ |
-| 13 | Buy vs Craft v2 | Refonte du calculateur avec `quote(itemID, qty)` au lieu de prix unitaire, `/cg analyze` mis à jour | Autonomous | 🔲 |
+| 13 | Buy vs Craft v2 | Refonte du calculateur avec `quote(itemID, qty)` au lieu de prix unitaire, `/cg analyze` mis à jour | Autonomous | ✅ |
 | 14 | AH Scanner v1 | `QueryAuctionItems`, filtrage par itemID, événement `AUCTION_ITEM_LIST_UPDATE`, scan d'un item | Semi-autonomous | 🔲 |
 | 15 | AH Scanner v2 | Pagination (50 résultats/page), throttling, file d'attente, fraîcheur des données | Semi-autonomous | 🔲 |
 
@@ -163,7 +163,7 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
 | Phase 1 — Bases | 3 | ✅ Terminé |
 | Phase 2 — UI minimale | 2 | ✅ Terminé |
 | Phase 3 — Cœur métier | 3 | ✅ Terminé |
-| Phase 4 — Données réelles | 7 | 🔄 En cours (09-11 faits, 12-15 à faire) |
+| Phase 4 — Données réelles | 7 | 🔄 En cours (00, 09-13 faits, 14-15 à faire) |
 | Phase 5 — Produit MVP | 2 | 🔲 À faire |
 | Phase 6 — Leveling Planner | 4 | 🔲 À faire |
 | **Total** | **21** | |
@@ -431,3 +431,20 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
   - `quote` ne marchait pas dans `/cg run` → raison de la refonte CmdLang
   - `return CmdLang` ignoré par WoW .toc → `ns.CmdLang = CmdLang` conditionnel
   - `rest` type retournait `""` au lieu de `nil` quand vide
+
+### Session 16 — Capsule 13 (Buy vs Craft v2) complétée
+- ✅ Capsule 13 (Buy vs Craft v2) implémentée et testée en jeu :
+  - `Calculator.lua` refondu : `_calculate(itemID, qty, state)` utilise `Quote.quote(itemID, qty)` au lieu de `Prices.get(itemID)`
+  - Fallback sur `Prices.get(itemID) × qty` quand aucun listing n'existe
+  - Pas de cache (coût dépend de qty, cache par itemID incorrect)
+  - Résultat enrichi avec `surplus` quand buy via DP quote
+  - `Report.lua` adapté : affichage du surplus dans `detail()` et `_printTree()`
+- ✅ **Bug CmdLang découvert et corrigé** : `register()` écrasement
+  - `/cg price 2589 100` → "price: unknown subcommand '2589'" car deux `register` du même nom s'écrasaient
+  - Fix : `register()` merge les inscriptions successives (handler + args + subs fusionnés)
+  - 4 tests busted ajoutés (reproduction du bug + nœuds hybrides)
+- ✅ 19 tests busted pour Calculator v2 (buy DP, craft DP, fallback, qty, analyze)
+- ✅ 8 tests in-game ajoutés (Calculator v2 DP Quote)
+- ✅ **124 tests busted** au total (0 failures)
+- ✅ **35 tests in-game** (0 failures)
+- ✅ `docs/cmdlang.md` mis à jour (section bug register merge)
