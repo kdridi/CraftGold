@@ -112,13 +112,13 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
 | 14 | AH Scanner v1 | `QueryAuctionItems`, filtrage par itemID, événement `AUCTION_ITEM_LIST_UPDATE`, scan d'un item | Semi-autonomous | ✅ |
 | 15 | AH Scanner v2 | Pagination (50 résultats/page), throttling, file d'attente, buffer périmé | Semi-autonomous | ✅ |
 
-## Phase 5 — Produit MVP
+## Phase 5 — Produit MVP ✅
 
 > Objectif : assembler CraftGold avec les vrais coûts et une UI.
 
 | # | Capsule | Concepts clés | Type | Statut |
 |---|---------|---------------|------|--------|
-| 16 | Profit Analyzer v2 | `marketPrice()`, commission HdV 5%, profit net, source tracking `[AH]`/`[Manual]` | Semi-autonomous | ✅ |
+| 16 | Profit Analyzer v2 | `marketPrice()`, commission HdV 5%, full scan `getAll`, DB complète 1383 recettes, profit net | Semi-autonomous | ✅ |
 | 17 | Profit Window | Fenêtre CraftGold, bouton Scan/Analyze, Top 10 crafts, sélection, détail | Sequential (11, 13) | 🔲 |
 
 ## Phase 6 — Leveling Planner
@@ -162,7 +162,7 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
 | Phase 2 — UI minimale | 2 | ✅ Terminé |
 | Phase 3 — Cœur métier | 3 | ✅ Terminé |
 | Phase 4 — Données réelles | 7 | ✅ Terminé |
-| Phase 5 — Produit MVP | 2 | 🔄 En cours (16 fait) |
+| Phase 5 — Produit MVP | 2 | ✅ Terminé (16 fait) |
 | Phase 6 — Leveling Planner | 4 | 🔲 À faire |
 | **Total** | **21** | |
 
@@ -500,5 +500,24 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
 - ✅ **Bug Money.format corrigé** : montants négatifs affichaient `—` au lieu de `-Xc`
 - ✅ **166 tests busted** (0 failures) — +12 tests marketPrice + analyze v2
 - ✅ **46 tests in-game** (0 failures) — +11 tests Profit Analyzer v2
-- ✅ **Phase 4 complétée** (7/7 capsules)
 - ✅ Validé en jeu avec vraies données HdV : Bombe grossière en cuivre = -7c (perte, commission comprise)
+
+### Session 20 — Full scan AH + DB complète (capsule 16 finalisée)
+- ✅ **Full scan AH via `getAll=true`** — nouveau module `FullScan.lua`
+  - Recherche : 4 LLM consultés, consensus 4/4 sur le comportement `getAll`
+  - `QueryAuctionItems("", ..., true, ...)` → télécharge tout l'HdV en une query
+  - `CanSendAuctionQuery()` retourne `(canQuery, canQueryAll)` — 2e retour pour le getAll
+  - Batches de 250 + `C_Timer.After(0.01)` pour éviter le freeze
+  - Silencing des autres listeners `AUCTION_ITEM_LIST_UPDATE` (pattern Auctionator)
+  - Patch défensif `ITEM_QUALITY_COLORS[-1]`
+  - Cooldown 15 min par compte/royaume, stocké en SavedVariables
+  - `/cg fullscan` + `/cg fullscan status`
+- ✅ **DB complète** : 61 → 1 383 recettes (toutes professions Vanilla)
+  - Converties depuis LibCrafts-1.0 (MIT) via script de parsing
+  - Alchemy: 136, Blacksmithing: 331, Cooking: 93, Enchanting: 22, Engineering: 181, FirstAid: 14, Leatherworking: 290, Mining: 13, Poisons: 26, Tailoring: 277
+- ✅ **Résultat en jeu** : 60 549 enchères, 4 759 items distincts scannés
+  - Top 3 rentable : Gilet vignesang (+152g), Sac sans fond (+134g), Heaume Cœur-de-lion (+124g)
+  - 20 crafts rentables sur 61 analysés
+- ✅ Tests busted adaptés pour DB complète (Mining → Copper Bar craftable)
+- ✅ **166 tests busted** (0 failures)
+- ✅ **Phase 5 complétée** (capsule 16) — capsule déplacée vers `02-done/`
