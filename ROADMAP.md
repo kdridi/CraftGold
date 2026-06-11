@@ -277,4 +277,31 @@ Après MVP:
   - Phase 5 = produit MVP (fenêtre résultats)
   - Phase 6 = extensions (scroll frame, leveling planner, polish)
 - ✅ `docs/scroll-frames.md` créé (servira plus tard, phase 6)
-- ⬜ Prochaine capsule : **06 — Recipe DB**
+### Session 8 — Capsule 06 complétée
+- ✅ Phase 0 — Sources de données recettes Engineering
+  - 4 LLM consultés (Claude, Gemini, ChatGPT, GitHub)
+  - **Source retenue** : LibCrafts-1.0 (MIT) — DB Vanilla complète, itemIDs identiques en Classic Era
+  - **CraftLib** (kaldown) identifié comme meilleur modèle de données mais licence All Rights Reserved
+  - ItemIDs Vanilla 1.12 = Classic Era 1.15.x (consensus 4/4)
+  - `docs/recipe-db-sources.md` créé
+- ✅ Phase A (storytelling + checklist) validée
+- ✅ Phase B — Capsule 06 testée en jeu :
+  - 26 recettes Engineering (skill 1-150) en DB statique
+  - 7 fonctions de requête dans Core.lua (getByOutput, getByReagent, getBySkill, etc.)
+  - 19 tests busted + 82 assertions in-game
+  - Fenêtre navigateur `/cgdb show` avec vrais noms d'items (GetItemInfo)
+  - Tooltips avec détails recette, composants, qualité, tag (craftable)
+- ✅ Recherche GetItemInfo cache — 4 LLM consultés
+  - `GetItemInfo()` quasi-toujours synchrone en Classic Era (données DB2/CASC locales)
+  - Supprimer `Cache/WDB/` ne suffit pas — les DB2 sont dans les archives du jeu
+  - IDs Retail (210502) reproduisent le nil + événement `GET_ITEM_INFO_RECEIVED` avec `success=false`
+  - `docs/getiteminfo-cache.md` créé
+- ✅ Recherche architecture UI — 4 LLM consultés
+  - **Pattern retenu** : Component Mixin + `ContinueOnItemLoad` (fourni par Blizzard)
+  - `ContinueOnItemLoad` disponible en Classic Era (vérifié dans `Blizzard_ObjectAPI/Classic/Item.lua`)
+  - UI.lua réécrit : chaque RecipeLine est un composant autonome
+  - Plus d'index externe `itemToTexts` — création et mise à jour au même endroit
+  - `docs/ui-architecture.md` créé (patterns évalués, recommandations futures)
+  - `docs/wow-api-functions.md` enrichi avec GetItemInfo, ContinueOnItemLoad, Mixin
+- ✅ Phase C — README et docs polis
+- ⬜ Prochaine capsule : **07 — Price & Calculator**

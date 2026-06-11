@@ -421,6 +421,75 @@ local parts = strsplittable(" ", "a b c")
 
 ---
 
+## Items
+
+### `GetItemInfo(itemID)`
+
+**Rôle** : Retourne les informations complètes d'un item. Peut retourner `nil` si l'item n'est pas encore en cache client (asynchrone).
+
+```lua
+local name, link, quality, itemLevel, reqLevel, class, subclass, maxStack, equipLoc, texture, sellPrice = GetItemInfo(2840)
+-- name = "Copper Bar", link = "|cffffffff|Hitem:2840...", quality = 1, ...
+```
+
+- ⚠️ Peut retourner `nil` si l'item n'est pas en cache → écouter `GET_ITEM_INFO_RECEIVED`
+- En Classic Era 1.15.x, les items de base sont quasi-toujours en cache immédiatement (données DB2 locales)
+- Voir `docs/getiteminfo-cache.md` pour les détails du cache
+
+### `GetItemInfoInstant(itemID)`
+
+**Rôle** : Retourne seulement les infos disponibles localement (pas de requête serveur). Jamais `nil` pour un item valide.
+
+```lua
+local itemID, itemType, itemSubType, equipLoc, icon, classID, subclassID = GetItemInfoInstant(2840)
+```
+
+- Ne retourne **pas** le nom localisé ni le lien complet
+- Utile pour icône, type, classe — sans risque d'async
+
+### `Item:CreateFromItemID(itemID)`
+
+**Rôle** : Crée un objet `Item` (Blizzard ObjectAPI) pour un itemID donné.
+
+```lua
+local item = Item:CreateFromItemID(2840)
+```
+
+- Disponible en Classic Era 1.15.x (vérifié dans `Blizzard_ObjectAPI/Classic/Item.lua`)
+- Prérequis pour `ContinueOnItemLoad`
+
+### `item:ContinueOnItemLoad(callback)`
+
+**Rôle** : Exécute le callback quand les données de l'item sont disponibles en cache. Si déjà en cache, exécute immédiatement.
+
+```lua
+local item = Item:CreateFromItemID(recipe.output)
+item:ContinueOnItemLoad(function()
+    local name = item:GetItemName()
+    -- name est garanti dispo ici
+end)
+```
+
+- Gère la déduplication, le filtrage par itemID et le désabonnement automatiquement
+- Utilise `ItemEventListener` en interne (événement `ITEM_DATA_LOAD_RESULT`)
+- C'est l'API Blizzard recommandée pour la résolution async d'items
+- **Garde anti-recyclage** : toujours vérifier `if self.recipe == recipe then` dans le callback
+
+### `Mixin(object, mixinTable)`
+
+**Rôle** : Copie toutes les méthodes d'une table mixin dans un objet. Pattern idiomatique WoW pour la composition.
+
+```lua
+Mixin(myFrame, RecipeLineMixin)
+-- myFrame hérite maintenant de RecipeLineMixin.Render, SetRecipe, etc.
+```
+
+- Fourni par le client WoW (`FrameXML`)
+- Equivalent à copier les clés d'une table dans une autre
+- Alternative Lua 5.1 pur : `for k, v in pairs(mixin) do obj[k] = v end`
+
+---
+
 ## Boutons
 
 > Source : `Blizzard_APIDocumentationGenerated/SimpleButtonAPIDocumentation.lua`, `Blizzard_SharedXML/SecureUIPanelTemplates.xml`.

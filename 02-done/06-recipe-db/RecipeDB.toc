@@ -1,0 +1,11 @@
+## Interface: 11508
+## Title: Recipe DB
+## Notes: Static Engineering recipe database — the heart of CraftGold
+## Author: CraftGold
+## Version: 1.0.0
+
+src\WoW.lua
+src\DB.lua
+src\Core.lua
+src\UI.lua
+RecipeDB.lua
