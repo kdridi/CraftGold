@@ -105,7 +105,7 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
 
 | # | Capsule | Concepts clés | Type | Statut |
 |---|---------|---------------|------|--------|
-| 09 | Item Info | `GetItemInfo()`, `GetItemInfoInstant()`, cache asynchrone, `GET_ITEM_INFO_RECEIVED`, fallback itemID | Semi-autonomous | 🔲 |
+| 09 | Item Info | `GetItemInfo()`, `GetItemInfoInstant()`, cache asynchrone, `GET_ITEM_INFO_RECEIVED`, fallback itemID | Semi-autonomous | ✅ |
 | 10 | Manual Listings | Remplacer `price[item]` par `listings[item] = {{count, buyout}, …}`, saisie manuelle `/cg listing add`, prix par stack vs unité | Autonomous | 🔲 |
 | 11 | Quote DP | DP covering knapsack 0/1 exact, `quote(itemID, quantity)`, reconstruction du panier, surplus | Autonomous | 🔲 |
 | 12 | Bill of Materials | Expansion récursive d'un craft en quantités agrégées de matières premières, `/cg shoplist` | Autonomous | 🔲 |
@@ -162,7 +162,7 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
 | Phase 1 — Bases | 3 | ✅ Terminé |
 | Phase 2 — UI minimale | 2 | ✅ Terminé |
 | Phase 3 — Cœur métier | 3 | ✅ Terminé |
-| Phase 4 — Données réelles | 7 | 🔲 À faire |
+| Phase 4 — Données réelles | 7 | 🔄 En cours (09 fait, 10-15 à faire) |
 | Phase 5 — Produit MVP | 2 | 🔲 À faire |
 | Phase 6 — Leveling Planner | 4 | 🔲 À faire |
 | **Total** | **21** | |
@@ -344,3 +344,20 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
 - ✅ **Phase 3 complétée** (DB + Prix + Calculateur + Report)
 - ✅ Pas de Phase 0 nécessaire (aucune nouvelle API WoW)
 - ✅ Pas de pitfall rencontré — tout passé du premier coup
+
+### Session 11 — Capsule 09 complétée
+- ✅ Capsule 09 (Item Info) implémentée et testée en jeu :
+  - Module `ItemInfo.lua` : API centralisée pour tout accès aux données d'items (12 fonctions)
+  - Exploration des API `C_Item.*` : `GetItemNameByID`, `IsItemDataCachedByID`, `GetItemQualityByID`, `GetItemIconByID`, `RequestLoadItemDataByID`
+  - `/iteminfo <id>` : inspection complète d'un item (instant data, cache status, full info, async callback)
+  - `/iteminfo scan` : scan de tous les items de la DB Engineering avec statut cache
+  - `/iteminfo test` : tests unitaires du module ItemInfo
+- ✅ Refactoring : `Report.lua` et le shell n'appellent plus `GetItemInfo()` directement → tout passe par `ns.ItemInfo`
+- ✅ Phase 0 : pas de prompt externe nécessaire — code source Blizzard + docs existantes suffisantes
+- ✅ `docs/wow-api-functions.md` enrichi avec les fonctions `C_Item.*` et l'événement `ITEM_DATA_LOAD_RESULT`
+- ✅ Découvertes en jeu :
+  - `C_Item.*` partage le même cache que `GetItemInfo()`
+  - En Classic Era, le cache se charge quasi-instantanément (entre deux commandes chat)
+  - `GetItemInfoInstant` retourne `nil` pour un itemID invalide
+  - Le callback async `onLoad` se déclenche rarement en pratique
+- ✅ Pitfall : tests localisation-dépendants (hardcodé "Copper Bar") → fix avec `GetItemInfo()` dynamique
