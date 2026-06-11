@@ -25,6 +25,7 @@ helpers.DEFAULT_ORDER = {
     "src/Report.lua",
     "src/BOM.lua",
     "src/Scanner.lua",
+    "src/ItemPreloader.lua",
 }
 
 -- Expose ns globally for tests that need it

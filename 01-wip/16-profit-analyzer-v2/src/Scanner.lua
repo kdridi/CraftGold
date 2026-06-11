@@ -158,7 +158,16 @@ end
 -- Returns: true if scan started/queued, false + error message
 function Scanner.scan(itemID, callback)
     -- Resolve itemID → name
+    -- First try the cache, then force-load if not cached
     local name = ns.WoW.GetItemInfo(itemID)
+    if not name then
+        -- Force the client to load item data from local DB2 files
+        if ns.WoW.RequestLoadItemDataByID then
+            ns.WoW.RequestLoadItemDataByID(itemID)
+        end
+        -- Retry after force-load (in Classic Era, data is local and loads near-instantly)
+        name = ns.WoW.GetItemInfo(itemID)
+    end
     if not name then
         return false, "item not in cache (try viewing it first, then retry)"
     end

@@ -277,6 +277,103 @@ cmd:register {
     end,
 }
 
+-- /cg analyze scan -- scan ALL materials + craft outputs, then analyze
+cmd:register {
+    name = "analyze",
+    subs = {
+        scan = {
+            help = "Scan AH for all materials and crafts, then show profit analysis",
+            condition = function()
+                if not ns.Scanner.isAHOpen() then
+                    return false, "AH is not open"
+                end
+                return true
+            end,
+            handler = function()
+                -- Clear all existing listings first for clean data
+                ns.Listings.clear()
+
+                -- Collect all unique itemIDs to scan
+                local itemIDs = {}
+                local seen = {}
+
+                for _, recipe in pairs(ns.DB.recipes) do
+                    -- Craft output
+                    if not seen[recipe.output] then
+                        seen[recipe.output] = true
+                        itemIDs[#itemIDs + 1] = recipe.output
+                    end
+                    -- Raw materials via BOM expansion
+                    local expanded = ns.BOM.expand(recipe.output, 1)
+                    if expanded then
+                        for matID in pairs(expanded.materials) do
+                            if not seen[matID] then
+                                seen[matID] = true
+                                itemIDs[#itemIDs + 1] = matID
+                            end
+                        end
+                    end
+                end
+
+                local total = #itemIDs
+
+                printMsg(string.format(
+                    "|cFF4FC3F7[Analyze]|r Preloading %d items...",
+                    total))
+
+                -- Step 1: Preload all items into client cache
+                ns.ItemPreloader.preloadItems(itemIDs, function(loaded, preloadFailed)
+                    printMsg(string.format(
+                        "|cFF4FC3F7[Analyze]|r %d loaded, %d failed. Starting AH scan (%d recipes)...",
+                        loaded, preloadFailed, ns.Core.count()))
+
+                    -- Step 2: Queue AH scans for all items
+                    local completed = 0
+                    local scanFailed = 0
+
+                    for _, itemID in ipairs(itemIDs) do
+                        local function onScanDone(results, skipped, meta)
+                            -- Inject results into Listings
+                            if meta and meta.itemID then
+                                ns.Listings.clear(meta.itemID)
+                                for _, listing in ipairs(results) do
+                                    ns.Listings.add(meta.itemID, listing.count, listing.buyout)
+                                end
+                            end
+
+                            completed = completed + 1
+                            if skipped and (skipped.cancelled or skipped.error) then
+                                scanFailed = scanFailed + 1
+                            end
+
+                            -- All done? Run the analysis
+                            if completed == total then
+                                printMsg(string.format(
+                                    "|cFF4FC3F7[Analyze]|r %d/%d scanned (%d failed). Profit analysis:",
+                                    completed - scanFailed, total, scanFailed))
+                                ns.Report.topCrafts()
+                            end
+                        end
+
+                        local ok, err = ns.Scanner.scan(itemID, onScanDone)
+                        if not ok then
+                            -- Not scannable (still not in cache even after preload)
+                            completed = completed + 1
+                            scanFailed = scanFailed + 1
+                            if completed == total then
+                                printMsg(string.format(
+                                    "|cFF4FC3F7[Analyze]|r %d/%d scanned (%d failed). Profit analysis:",
+                                    completed - scanFailed, total, scanFailed))
+                                ns.Report.topCrafts()
+                            end
+                        end
+                    end
+                end)
+            end,
+        },
+    },
+}
+
 -- /cg log on/off/clear/show
 cmd:register {
     name = "log",

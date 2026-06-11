@@ -18,4 +18,5 @@ src\ItemInfo.lua
 src\Report.lua
 src\BOM.lua
 src\Scanner.lua
+src\ItemPreloader.lua
 ManualListings.lua

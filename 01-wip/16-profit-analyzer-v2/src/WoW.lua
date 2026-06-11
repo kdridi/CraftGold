@@ -18,6 +18,7 @@ local FALLBACKS = {
         for k in pairs(t) do t[k] = nil end
     end,
     GetItemInfo = function() return nil end,
+    RequestLoadItemDataByID = function() end,
     CanSendAuctionQuery = function() return false end,
     QueryAuctionItems = function() end,
     GetNumAuctionItems = function() return 0, 0 end,

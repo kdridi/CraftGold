@@ -45,19 +45,47 @@ function Report.topCrafts(n)
     local results = ns.Calculator.analyze()
 
     if #results == 0 then
-        log("No profitable crafts found.")
-        log("  Set prices/listings for materials AND craft outputs first.")
-        log("  Tip: /cg scan <itemID> at the AH, then /cg analyze")
+        log("No craftable items found with sell price data.")
+        log("  Use |cFFFFFF00/cg analyze scan|r at the AH to scan everything automatically.")
         return
     end
 
-    local show = (n and n > 0) and math.min(n, #results) or #results
+    -- Check if any are profitable
+    local profitable = {}
+    for _, r in ipairs(results) do
+        if r.profit > 0 then
+            profitable[#profitable + 1] = r
+        end
+    end
+
+    if #profitable == 0 then
+        log(string.format("%d craft(s) analyzed — |cFFFF0000none profitable|r after %.0f%% AH commission.",
+            #results, ns.Calculator._getAhCutPercent()))
+        log("  Closest to profit:")
+        local show = math.min(5, #results)
+        for i = 1, show do
+            local entry = results[i]
+            local name = ns.ItemInfo.formatName(entry.itemID)
+            local srcTag = entry.priceSource == "ah" and "|cFF4FC3F7[AH]|r" or "|cFF808080[Manual]|r"
+            ns.WoW.print(string.format(
+                "  |cFFFFFF00%d.|r %s %s — Cost: %s — Sell: %s — Cut: %s — Profit: |cFFFF0000%s|r — Margin: %.0f%%",
+                i, name, srcTag,
+                ns.Money.formatColored(entry.craftCost),
+                ns.Money.formatColored(entry.sellPrice),
+                ns.Money.formatColored(entry.ahCut),
+                ns.Money.format(entry.profit),
+                entry.margin))
+        end
+        return
+    end
+
+    local showList = n and n > 0 and math.min(n, #profitable) or #profitable
 
     log(string.format("Top %d craft(s) — profit after %.0f%% AH commission:",
-        show, ns.Calculator._getAhCutPercent()))
+        showList, ns.Calculator._getAhCutPercent()))
 
-    for i = 1, show do
-        local entry = results[i]
+    for i = 1, showList do
+        local entry = profitable[i]
         local name = ns.ItemInfo.formatName(entry.itemID)
         local profitColor = entry.profit > 0 and "|cFF00FF00" or "|cFFFF0000"
         local surplusTag = ""
@@ -78,9 +106,9 @@ function Report.topCrafts(n)
             entry.margin, surplusTag))
     end
 
-    if show < #results then
+    if showList < #profitable then
         log(string.format("  |cFF808080... and %d more (use /cg analyze %d to see all)|r",
-            #results - show, #results))
+            #profitable - showList, #profitable))
     end
 end
 
