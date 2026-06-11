@@ -10,6 +10,7 @@
 --   - /cg log for capturing output to file (via SavedVariables)
 
 local _, ns = ...
+_G.cgNS = ns  -- Expose namespace for /run debugging
 
 local addonName = "ManualListings"
 

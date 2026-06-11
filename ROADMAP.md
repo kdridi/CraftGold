@@ -105,6 +105,7 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
 
 | # | Capsule | Concepts clés | Type | Statut |
 |---|---------|---------------|------|--------|
+| 00 | Dev Tools | `/dump`, `/etrace`, `/fstack`, `/tinspect`, BugSack, DevTool, profiling, event spy | Semi-autonomous | ✅ |
 | 09 | Item Info | `GetItemInfo()`, `GetItemInfoInstant()`, cache asynchrone, `GET_ITEM_INFO_RECEIVED`, fallback itemID | Semi-autonomous | ✅ |
 | 10 | Manual Listings | Remplacer `price[item]` par `listings[item] = {{count, buyout}, …}`, saisie manuelle `/cg listing add`, prix par stack vs unité | Autonomous | ✅ |
 | 11 | Quote DP | DP covering knapsack 0/1 exact, `quote(itemID, quantity)`, reconstruction du panier, surplus | Autonomous | 🔲 |
@@ -162,7 +163,7 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
 | Phase 1 — Bases | 3 | ✅ Terminé |
 | Phase 2 — UI minimale | 2 | ✅ Terminé |
 | Phase 3 — Cœur métier | 3 | ✅ Terminé |
-| Phase 4 — Données réelles | 7 | 🔄 En cours (09 fait, 10-15 à faire) |
+| Phase 4 — Données réelles | 7 | 🔄 En cours (09-10 faits, 11-15 à faire) |
 | Phase 5 — Produit MVP | 2 | 🔲 À faire |
 | Phase 6 — Leveling Planner | 4 | 🔲 À faire |
 | **Total** | **21** | |
@@ -375,3 +376,16 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
   - `GetItemInfoInstant` retourne `nil` pour un itemID invalide
   - Le callback async `onLoad` se déclenche rarement en pratique
 - ✅ Pitfall : tests localisation-dépendants (hardcodé "Copper Bar") → fix avec `GetItemInfo()` dynamique
+
+### Session 13 — Capsule 00 (Dev Tools) complétée
+- ✅ Capsule transverse : pas de code nouveau, 6 scènes hands-on en jeu
+- ✅ Add-ons installés : !BugGrabber, BugSack, DevTool (via CurseForge)
+- ✅ Scène 1 — Erreurs : `/bugsack show` = commande clé ; BugGrabber intercepte la popup Blizzard ; `debuglocals()` OK
+- ✅ Scène 2 — Inspection : `/dump` (quick), `/tinspect` (arbre), DevTool (console navigateur-like)
+- ✅ Scène 3 — Événements : `/etrace` avec filtre temps réel ; EventSpy maison via `RegisterAllEvents()` + log
+- ✅ Scène 4 — Frames : `/fstack` toggle (pas ESC !), ALT pour naviguer dans la hiérarchie
+- ✅ Scène 5 — Profiling : `debugprofilestart/stop` ; Calculator = 15 µs/appel récursif, 66 000/sec
+- ✅ Scène 6 — Capture : `/cg log on` + lecture SavedVariables = pattern de base agent↔utilisateur
+- ✅ **Découverte majeure** : `ns` local → inaccessible depuis `/run` → ajout `_G.cgNS = ns` dans ManualListings
+- ✅ Skill `wow-dev-debug` mis à jour avec les découvertes de la session
+- ✅ README capsule écrit avec vrai vécu + cheat sheet

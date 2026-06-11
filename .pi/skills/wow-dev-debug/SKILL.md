@@ -52,7 +52,8 @@ L'utilisateur rencontre l'une de ces situations :
 4. `CTRL` → ouvre le Table Inspector sur la frame sélectionnée
 5. `SHIFT` → toggle texture information
 6. `CTRL+C` → copie des infos texture
-7. La variable globale `fsobj` contient la dernière frame sélectionnée
+7. `/fstack` est un **toggle** — retaper `/fstack` pour désactiver (pas ESC !)
+8. La variable globale `fsobj` contient la dernière frame sélectionnée
 
 ### /tinspect — Table Inspector
 
@@ -117,6 +118,17 @@ ns.WoW.print("BP: " .. debugstack(2))
 ns.WoW.print("LOCALS: " .. debuglocals(2))
 ```
 
+⚠️ `ns` est local à l'add-on → inaccessible depuis `/run`. Ajouter `_G.cgNS = ns` dans le shell pour exposer le namespace en global.
+
+### Pattern 3.5 — Dev Log via SavedVariables
+
+Le pattern de base pour que l'agent IA voie ce qui se passe en jeu :
+
+1. `/cg log on` → active la capture
+2. `/run cgNS.WoW.print("debug info")` → log via ns
+3. `/reload` → flush sur disque
+4. L'agent lit `WTF/Account/.../SavedVariables/ManualListings.lua`
+
 ### Pattern 4 — Profiling ad hoc
 
 ```lua
@@ -136,6 +148,9 @@ end)
 ```
 
 ## Réaction de l'agent face à un problème
+
+⚠️ **Règle #0** : toujours proposer `/cg log on` + `cgNS.WoW.print()` pour capturer l'output. Ne **jamais** demander à l'utilisateur de lire et recopier le chat. C'est frustrant, imprécis, et ça tue le flow.
+
 
 Quand l'utilisateur rapporte un bug ou un comportement inattendu :
 
