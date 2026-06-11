@@ -6,20 +6,25 @@
 
 ## Vue d'ensemble
 
-14 capsules progressives, chacune un mini-add-on indépendant, pour apprendre à créer des add-ons WoW tout en construisant CraftGold.
+21 capsules progressives, chacune un mini-add-on indépendant, pour apprendre à créer des add-ons WoW tout en construisant CraftGold.
 
 **6 phases :**
 
 1. **Phase 1 — Bases** — Structure d'un add-on, événements, persistance
 2. **Phase 2 — UI minimale** — Frames, boutons, texte (suffisant pour le MVP)
-3. **Phase 3 — Cœur métier** — DB recettes, prix, calcul récursif des coûts
-4. **Phase 4 — Données du jeu** — Items, Hôtel des Ventes
-5. **Phase 5 — Produit MVP** — Affichage des résultats, premier moment magique
-6. **Phase 6 — Extensions** — Scroll frame, leveling planner, polish
+3. **Phase 3 — Cœur métier** — DB recettes, prix, calculateur récursif
+4. **Phase 4 — Données réelles** — Modèle listings, DP knapsack, scanner AH
+5. **Phase 5 — Produit MVP** — Profit analyzer v2, fenêtre de résultats
+6. **Phase 6 — Leveling planner** — Probabilités de skill-up, plan optimal, panier réel
 
 ### Principe directeur
 
 > **Données d'abord, interface ensuite.** On ne construit pas de widgets par spéculation. On apprend les widgets quand les données réelles les rendent nécessaires.
+
+### Double objectif
+
+1. **Monter un métier au moindre coût** — Calculer le chemin optimal pour monter Engineering de 0 à 300, en tenant compte des prix réels de l'HdV (stacks indivisibles) et des probabilités de skill-up (orange/jaune/vert/gris).
+2. **Identifier les crafts rentables** — Achat de composants → fabrication → revente HdV, avec coût réel exact via DP covering knapsack.
 
 ---
 
@@ -47,6 +52,12 @@
 
 Voir `prompts/research-wow-api-response.md` pour les détails complets.
 
+### Stacks HdV — indivisibles (validé Session 9)
+
+En Classic Era, un buyout achète le **listing entier** — pas d'achat fractionnaire. L'achat fractionnaire n'existe qu'en Retail (patch 8.3). Consensus 4/4 LLM + sources API.
+
+Conséquence : le coût d'achat pour une quantité Q est un **covering knapsack 0/1**, résolu exactement par DP.
+
 ### Décision MVP (Session 7)
 
 Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
@@ -56,24 +67,6 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
 - Ce qu'on sait faire (frames, boutons, texte) suffit pour le MVP
 - Le calculateur récursif est le cœur du produit → à débloquer en premier
 - Scroll frame, minimap, options → reportés après le MVP
-
-**Ordre retenu :**
-1. DB statique (10-20 recettes Engineering, Lua pur, testable busted)
-2. Prix manuels via slash command (`/cg price`) + calculateur récursif
-3. ItemInfo cache (noms lisibles)
-4. Scan AH ciblé (automatisation des prix)
-5. UI d'affichage (fenêtre simple, Top 10)
-
-**Premier moment magique :**
-```
-/cg price 2840 12s40c       -- Copper Bar = 12s40c
-/cg price 2589 3s10c        -- Linen Cloth = 3s10c
-/cg price 4359 18s          -- Handful of Copper Bolts = 18s
-/cg analyze
-
-→ "Copper Modulator — Coût: 41s20c — Profit: 30s80c — Marge: 74%"
-→ "Conseil: craft les Copper Bolts (12s40c) au lieu de les acheter (18s)"
-```
 
 ---
 
@@ -93,45 +86,52 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
 
 | # | Capsule | Concepts clés | Type | Statut |
 |---|---------|---------------|------|--------|
-| 04 | My First Frame | `CreateFrame()`, backdrop, position, fenêtre déplaçable | Autonomous | ✅ |
+| 04 | My First Frame | `CreateFrame()`, backdrop, position, venêtre déplaçable | Autonomous | ✅ |
 | 05 | Buttons & Text | `CreateFrame("Button", ...)`, `FontString`, `OnClick`, templates | Autonomous | ✅ |
 
-## Phase 3 — Cœur métier
+## Phase 3 — Cœur métier ✅
 
 > Objectif : construire le moteur économique de CraftGold. Données et algorithme avant UI.
 
 | # | Capsule | Concepts clés | Type | Statut |
 |---|---------|---------------|------|--------|
-| 06 | Recipe DB | DB statique Engineering (10-20 recettes), itemID, structures Lua, tests busted | Autonomous | 🔲 |
-| 07 | Price & Calculator | Prix manuels (`/cg price`), formatage money (or/argent/cuivre), calculateur récursif `min(buy, craft)`, détection de cycles, mémoïsation | Autonomous | 🔲 |
-| 08 | Analyze & Report | `/cg analyze`, Top N crafts rentables, affichage chat, détail recette avec arbre de décision buy vs craft | Autonomous | 🔲 |
+| 06 | Recipe DB | DB statique Engineering (10-20 recettes), itemID, structures Lua, tests busted | Autonomous | ✅ |
+| 07 | Price & Calculator | Prix manuels (`/cg price`), formatage money, calculateur récursif `min(buy, craft)`, cycles, mémoïsation | Autonomous | ✅ |
+| 08 | Analyze & Report | `/cg analyze`, Top N crafts rentables, affichage chat, détail recette | Autonomous | 🔲 |
 
-## Phase 4 — Données du jeu
+## Phase 4 — Données réelles
 
-> Objectif : connecter CraftGold aux données réelles du jeu.
+> Objectif : passer du modèle simpliste (1 prix/item) au modèle réel (listings HdV indivisibles, DP knapsack).
 
 | # | Capsule | Concepts clés | Type | Statut |
 |---|---------|---------------|------|--------|
-| 09 | Item Info | `GetItemInfo()`, `GetItemInfoInstant()`, cache asynchrone, `GET_ITEM_INFO_RECEIVED`, fallback itemID si pas en cache | Semi-autonomous | 🔲 |
-| 10 | AH Scanner | `QueryAuctionItems`, `GetAuctionItemInfo`, `AUCTION_ITEM_LIST_UPDATE`, pagination, throttling, prix par stack vs unité, scan ciblé des items de la DB | Semi-autonomous | 🔲 |
+| 09 | Item Info | `GetItemInfo()`, `GetItemInfoInstant()`, cache asynchrone, `GET_ITEM_INFO_RECEIVED`, fallback itemID | Semi-autonomous | 🔲 |
+| 10 | Manual Listings | Remplacer `price[item]` par `listings[item] = {{count, buyout}, …}`, saisie manuelle `/cg listing add`, prix par stack vs unité | Autonomous | 🔲 |
+| 11 | Quote DP | DP covering knapsack 0/1 exact, `quote(itemID, quantity)`, reconstruction du panier, surplus | Autonomous | 🔲 |
+| 12 | Bill of Materials | Expansion récursive d'un craft en quantités agrégées de matières premières, `/cg shoplist` | Autonomous | 🔲 |
+| 13 | Buy vs Craft v2 | Refonte du calculateur avec `quote(itemID, qty)` au lieu de prix unitaire, `/cg analyze` mis à jour | Autonomous | 🔲 |
+| 14 | AH Scanner v1 | `QueryAuctionItems`, filtrage par itemID, événement `AUCTION_ITEM_LIST_UPDATE`, scan d'un item | Semi-autonomous | 🔲 |
+| 15 | AH Scanner v2 | Pagination (50 résultats/page), throttling, file d'attente, fraîcheur des données | Semi-autonomous | 🔲 |
 
 ## Phase 5 — Produit MVP
 
-> Objectif : assembler le premier CraftGold fonctionnel avec UI.
+> Objectif : assembler CraftGold avec les vrais coûts et une UI.
 
 | # | Capsule | Concepts clés | Type | Statut |
 |---|---------|---------------|------|--------|
-| 11 | Profit Window | Fenêtre CraftGold, boutons Scan/Analyze, Top 10 crafts, détail recette, sélection | Sequential (07, 08) | 🔲 |
+| 16 | Profit Analyzer v2 | `/cg analyze` refondu avec coûts exacts via DP, prix de vente estimé | Semi-autonomous | 🔲 |
+| 17 | Profit Window | Fenêtre CraftGold, bouton Scan/Analyze, Top 10 crafts, sélection, détail | Sequential (11, 13) | 🔲 |
 
-## Phase 6 — Extensions
+## Phase 6 — Leveling Planner
 
-> Objectif : enrichir CraftGold au-delà du MVP. Widgets apprism quand les données les rendent nécessaires.
+> Objectif : plan optimal pour monter un métier au moindre coût.
 
 | # | Capsule | Concepts clés | Type | Statut |
 |---|---------|---------------|------|--------|
-| 12 | Scroll Frame | `ScrollFrame`, `Slider`, button pooling — **uniquement si la liste dépasse l'écran** | Autonomous | 🔲 |
-| 13 | Leveling Planner | Plan 1→300 optimal, seuils orange/jaune/vert/gris, quantités estimées, coût total | Sequential (06, 07) | 🔲 |
-| 14 | CraftGold v1 | DB complète Engineering, intégration Trade Skill UI, minimap button, options, polish | Sequential (01-13) | 🔲 |
+| 18 | Skill Difficulty | Seuils orange/jaune/vert/gris par recette, `p(recipe, skill)` interchangeable, espérance géométrique `1/p` | Autonomous | 🔲 |
+| 19 | Leveling DP | DP plus court chemin skill 0→300, plan affiché avec coût espéré par segment | Autonomous | 🔲 |
+| 20 | Shopping List | Panier global du plan + cotation réelle via DP knapsack + marge de sécurité sur recettes non-orange | Sequential (11, 19) | 🔲 |
+| 21 | CraftGold v1 | DB complète Engineering, intégration Trade Skill UI, polish | Sequential (01-20) | 🔲 |
 
 ---
 
@@ -140,14 +140,17 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
 ```
 01 → 02 → 03 → 04 → 05
                    ↓
-               06 → 07 → 08 → 11
-                ↓         ↑
-               09 → 10 ───┘
-               
-Après MVP:
-12 (quand la liste déborde)
-13 (quand le profit fonctionne)
-14 (assemblage final)
+               06 → 07 → 08
+                       ↓
+                       09
+                       ↓
+            10 → 11 → 12 → 13 → 14 → 15 → 16 → 17
+                   ↓                              ↑
+                   └──────────────────────────────┘
+                   
+            18 → 19 → 20 → 21
+             ↑         ↑
+            09       11, 13
 ```
 
 ---
@@ -158,11 +161,11 @@ Après MVP:
 |-------|----------|--------|
 | Phase 1 — Bases | 3 | ✅ Terminé |
 | Phase 2 — UI minimale | 2 | ✅ Terminé |
-| Phase 3 — Cœur métier | 3 | 🔲 À faire |
-| Phase 4 — Données du jeu | 2 | 🔲 À faire |
-| Phase 5 — Produit MVP | 1 | 🔲 À faire |
-| Phase 6 — Extensions | 3 | 🔲 À faire |
-| **Total** | **14** | |
+| Phase 3 — Cœur métier | 3 (2 ✅, 1 🔲) | 🔄 En cours |
+| Phase 4 — Données réelles | 7 | 🔲 À faire |
+| Phase 5 — Produit MVP | 2 | 🔲 À faire |
+| Phase 6 — Leveling Planner | 4 | 🔲 À faire |
+| **Total** | **21** | |
 
 ---
 
@@ -277,6 +280,7 @@ Après MVP:
   - Phase 5 = produit MVP (fenêtre résultats)
   - Phase 6 = extensions (scroll frame, leveling planner, polish)
 - ✅ `docs/scroll-frames.md` créé (servira plus tard, phase 6)
+
 ### Session 8 — Capsule 06 complétée
 - ✅ Phase 0 — Sources de données recettes Engineering
   - 4 LLM consultés (Claude, Gemini, ChatGPT, GitHub)
@@ -304,4 +308,28 @@ Après MVP:
   - `docs/ui-architecture.md` créé (patterns évalués, recommandations futures)
   - `docs/wow-api-functions.md` enrichi avec GetItemInfo, ContinueOnItemLoad, Mixin
 - ✅ Phase C — README et docs polis
-- ⬜ Prochaine capsule : **07 — Price & Calculator**
+
+### Session 9 — Capsule 07 + Refonte roadmap
+- ✅ Capsule 07 (Price & Calculator) implémentée et testée en jeu :
+  - Module Money : parse/format or/argent/cuivre
+  - Module Prices : stockage itemID → copper (SavedVariables)
+  - Module Calculator : récursif `min(buy, craft)`, cycles, mémoïsation
+  - Commandes `/cg price|cost|analyze`, tests busted 40/40, tests in-game OK
+  - Commande `/cg savings` retirée (redondante avec les tips de `/cg analyze`)
+- ✅ Règle ajoutée dans AGENTS.md : confirmation obligatoire au début de chaque session
+- ✅ Consultation multi-agents sur le problème des prix réels HdV (`prompts/multiagent-ah-pricing-problem.md`)
+  - 4 LLM consultés (Claude, Gemini, ChatGPT, Copilot)
+  - **Consensus** : le prix devient `quote(itemID, quantity)` (fonction, pas nombre)
+  - **Consensus** : DP covering knapsack 0/1 pour le coût exact
+  - **Consensus** : aucun add-on existant (TSM, Auctionator) ne résout ce problème
+  - **Consensus** : leveling planner = DP backward O(300 × nbRecettes)
+  - **Désaccord** : glouton vs DP (Copilot suppose achat fractionnaire — erreur factuelle)
+- ✅ Consultation suivi : stacks indivisibles vs fractionnaires (`prompts/research-ah-stack-divisibility.md`)
+  - **Consensus 4/4** : stacks indivisibles en Classic Era (Option B)
+  - Source : API `PlaceAuctionBid` sans paramètre quantité, achat fractionnaire = nouveauté Retail 8.3
+  - Algorithme recommandé : DP 0/1 exact (Claude, ChatGPT, Gemini) vs unbounded (Copilot — erreur)
+- ✅ **Roadmap révisée** : 21 capsules (08→21)
+  - Phase 4 nouvelle : Manual Listings → Quote DP → Bill of Materials → Buy vs Craft v2
+  - AH Scanner en 2 capsules (v1 simple + v2 pagination)
+  - Leveling Planner en 3 capsules (Skill Difficulty → Leveling DP → Shopping List)
+  - Inspirée des meilleures propositions de chaque LLM

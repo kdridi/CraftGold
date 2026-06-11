@@ -2,12 +2,10 @@
 
 | Metadata      | Value                                                       |
 |---------------|-------------------------------------------------------------|
-| Phase         | Phase 4 — Données du jeu                                    |
-| Duration      | 45 min                                                      |
-| Difficulty    | ●●●○○ (3/5)                                                |
-| Prerequisites | Capsule 08 — Analyze & Report                               |
-| Type          | Semi-autonomous                                              |
-| Concepts      | `GetItemInfo()`, `GetItemInfoInstant()`, cache asynchrone, `GET_ITEM_INFO_RECEIVED` |
+| Phase         | Phase 4 — Données réelles                                   |
+| Prerequisites | Capsule 07 — Price & Calculator                             |
+| Type          | Semi-autonomous                                             |
+| Concepts      | `GetItemInfo()`, `GetItemInfoInstant()`, cache asynchrone, `GET_ITEM_INFO_RECEIVED`, fallback itemID si pas en cache |
 
 ## Why This Capsule?
 
@@ -15,29 +13,10 @@
 
 ## Objectives
 
-1. **Resolve** itemID → name, icon, sellPrice
-2. **Handle** the nil case (item not in cache yet)
-3. **Retry** on `GET_ITEM_INFO_RECEIVED` event
-4. **Display** readable item names instead of raw itemIDs
-
-## Key Concepts
-
-*(To be expanded during Phase C)*
-
-## Execution
-
-1. Copy to `Interface/AddOns/`
-2. `/reload` in-game
-3. `/cg item 2840` — show item info
-
-## Expected Output
-
-*(To be written during Phase A)*
-
-## Common Pitfalls
-
-*(To be populated during Phase B)*
+1. **Résoudre** les itemID en noms lisibles via `GetItemInfo()`
+2. **Gérer** le cache asynchrone (items pas encore vus par le client)
+3. **Afficher** les noms partout au lieu de `item:XXXX`
 
 ## Going Further
 
-- → Next capsule: **10 — AH Scanner**
+- → Capsule 10 : Manual Listings (modèle de données multi-listings)

@@ -3,11 +3,9 @@
 | Metadata      | Value                                                       |
 |---------------|-------------------------------------------------------------|
 | Phase         | Phase 3 — Cœur métier                                       |
-| Duration      | 45 min                                                      |
-| Difficulty    | ●●●○○ (3/5)                                                |
 | Prerequisites | Capsule 07 — Price & Calculator                             |
 | Type          | Autonomous                                                  |
-| Concepts      | `/cg analyze`, `/cg detail <itemID>`, Top N profitable, decision tree buy vs craft |
+| Concepts      | `/cg analyze`, Top N crafts rentables, affichage chat, détail recette avec arbre de décision buy vs craft |
 
 ## Why This Capsule?
 
@@ -15,30 +13,26 @@
 
 ## Objectives
 
-1. **Analyze** all known recipes and rank by profit
-2. **Display** Top N results in chat
-3. **Show detail** for a specific recipe with buy vs craft decision tree
-4. **Handle** missing prices gracefully
-
-## Key Concepts
-
-*(To be expanded during Phase C)*
+1. **Afficher** le top N des crafts rentables dans le chat
+2. **Détailler** chaque craft : coût, prix de vente, profit, marge
+3. **Montrer** les conseils buy vs craft pour les composants intermédiaires
 
 ## Execution
 
 1. Copy to `Interface/AddOns/`
 2. `/reload` in-game
-3. `/cg analyze` — top profitable crafts
-4. `/cg detail 4363` — detail for Copper Modulator
+3. Set prices with `/cg price`
+4. `/cg analyze` — see profitable crafts
 
 ## Expected Output
 
-*(To be written during Phase A)*
-
-## Common Pitfalls
-
-*(To be populated during Phase B)*
+```
+/cg analyze
+CraftGold — Top 3 profitable crafts:
+  1. Copper Modulator — Cost: 43s40c — Sell: 72s — Profit: 28s60c — Margin: 66%
+    → Craft Handful of Copper Bolts (12s40c) instead of buying (18s)
+```
 
 ## Going Further
 
-- → Next capsule: **09 — Item Info**
+- → Capsule 09 : Item Info (noms lisibles au lieu de `item:XXXX`)
