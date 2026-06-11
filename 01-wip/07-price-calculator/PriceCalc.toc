@@ -1,0 +1,14 @@
+## Interface: 11508
+## Title: Price & Calculator
+## Notes: Manual prices and recursive cost calculator for CraftGold
+## Author: CraftGold
+## Version: 1.0.0
+## SavedVariables: PriceCalcDB
+
+src\WoW.lua
+src\DB.lua
+src\Core.lua
+src\Money.lua
+src\Prices.lua
+src\Calculator.lua
+PriceCalc.lua
