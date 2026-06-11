@@ -231,15 +231,18 @@ Source de données pour les recettes : voir `prompts/multiagent-recipe-architect
 
 ### Rituel de session
 
+**⛔ Règle absolue :** Quel que soit le prompt de l'utilisateur, la première action de l'agent est TOUJOURS d'annoncer où on en est et ce qu'il propose de faire. **Aucun fichier de code n'est créé avant la Phase B validée.** L'agent s'arrête, résume la situation, et attend la confirmation de l'utilisateur avant de poursuivre.
+
 **🟢 Début de session :**
 1. Lire `AGENTS.md` puis `ROADMAP.md` pour le contexte
 2. `ls 01-wip/` → capsule en cours ? Si oui, lire son README.md pour reprendre
 3. `ls 02-done/` → combien de terminées ?
 4. `ls 00-todo/ | head -1` → prochaine capsule
 5. Lire le README.md de la prochaine capsule
-6. **Phase 0** : lister les hypothèses, générer le méga-prompt de recherche, attendre les réponses, mettre à jour `docs/`
-7. Phase A : storytelling + checklist technique
-8. Comparer avec ROADMAP.md → filesystem = source de vérité
+6. **Annoncer le plan et attendre confirmation** — L'agent résume : où on en est, quelle est la prochaine capsule, quelle phase démarre, et pose la question : « On commence la Phase X de la capsule YY — tu confirmes ? ». **Ne rien exécuter avant la réponse de l'utilisateur.**
+7. **Phase 0** : lister les hypothèses, générer le méga-prompt de recherche, attendre les réponses, mettre à jour `docs/`
+8. Phase A : storytelling + checklist technique
+9. Comparer avec ROADMAP.md → filesystem = source de vérité
 
 **🔴 Fin de session — Checklist de cohérence :**
 
