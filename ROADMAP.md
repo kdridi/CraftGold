@@ -109,7 +109,7 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
 | 09 | Item Info | `GetItemInfo()`, `GetItemInfoInstant()`, cache asynchrone, `GET_ITEM_INFO_RECEIVED`, fallback itemID | Semi-autonomous | ✅ |
 | 10 | Manual Listings | Remplacer `price[item]` par `listings[item] = {{count, buyout}, …}`, saisie manuelle `/cg listing add`, prix par stack vs unité | Autonomous | ✅ |
 | 11 | Quote DP + CmdLang | DP covering knapsack 0/1 exact, `quote(itemID, quantity)`, surplus, parser déclaratif CmdLang, types, help auto, conditions dynamiques | Autonomous | ✅ |
-| 12 | Bill of Materials | Expansion récursive d'un craft en quantités agrégées de matières premières, `/cg shoplist` | Autonomous | 🔲 |
+| 12 | Bill of Materials | Expansion récursive d'un craft en quantités agrégées de matières premières, `/cg shoplist` | Autonomous | ✅ |
 | 13 | Buy vs Craft v2 | Refonte du calculateur avec `quote(itemID, qty)` au lieu de prix unitaire, `/cg analyze` mis à jour | Autonomous | 🔲 |
 | 14 | AH Scanner v1 | `QueryAuctionItems`, filtrage par itemID, événement `AUCTION_ITEM_LIST_UPDATE`, scan d'un item | Semi-autonomous | 🔲 |
 | 15 | AH Scanner v2 | Pagination (50 résultats/page), throttling, file d'attente, fraîcheur des données | Semi-autonomous | 🔲 |
@@ -390,7 +390,23 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
 - ✅ Skill `wow-dev-debug` mis à jour avec les découvertes de la session
 - ✅ README capsule écrit avec vrai vécu + cheat sheet
 
-### Session 14 — Capsule 11 (Quote DP + CmdLang) complétée
+### Session 15 — Capsule 12 (Bill of Materials) complétée
+- ✅ Capsule 12 (Bill of Materials) implémentée et testée en jeu :
+  - Module `BOM.lua` : expansion récursive d'un craft en matières premières
+  - Agrégation automatique par itemID (même composant via plusieurs chemins → somme)
+  - `BOM.shoplist(itemID, qty)` : expansion + cotation DP de chaque matière
+  - `/cg shoplist <itemID> [qty]` — panier complet avec coûts
+  - `/cg shoplist expand <itemID> [qty]` — expansion brute sans prix
+- ✅ **Bug CmdLang corrigé** : nœuds hybrides (handler + subs)
+  - `/cg shoplist 4360 1` et `/cg shoplist expand 4360 1` maintenant supportés
+  - 5 lignes de fix dans `resolve()` — 100% rétrocompatible
+- ✅ **8 tests busted** pour le cas hybride CmdLang
+- ✅ **12 tests busted** pour le module BOM
+- ✅ **101 tests busted au total** (0 failures)
+- ✅ **Nouvelle règle AGENTS.md** : "Bug = trou dans les tests unitaires"
+  - Avant de corriger → écrire un test qui échoue
+  - Corriger → vérifier busted → ensuite seulement tester en jeu
+- ✅ `docs/cmdlang.md` mis à jour (section nœuds hybrides)
 - ✅ **Quote DP** — DP covering knapsack 0/1 exact :
   - `Quote.dpCover(listings, need)` → coût optimal + panier + surplus
   - `Quote.greedy(listings, need)` — témoin pour comparaison
