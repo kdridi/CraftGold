@@ -1,0 +1,15 @@
+## Interface: 11508
+## Title: Analyze & Report
+## Notes: Top N profitable crafts, detailed breakdown, recursive buy vs craft tree
+## Author: CraftGold
+## Version: 1.0.0
+## SavedVariables: AnalyzeReportDB
+
+src\WoW.lua
+src\DB.lua
+src\Core.lua
+src\Money.lua
+src\Prices.lua
+src\Calculator.lua
+src\Report.lua
+AnalyzeReport.lua

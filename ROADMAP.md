@@ -97,7 +97,7 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
 |---|---------|---------------|------|--------|
 | 06 | Recipe DB | DB statique Engineering (10-20 recettes), itemID, structures Lua, tests busted | Autonomous | ✅ |
 | 07 | Price & Calculator | Prix manuels (`/cg price`), formatage money, calculateur récursif `min(buy, craft)`, cycles, mémoïsation | Autonomous | ✅ |
-| 08 | Analyze & Report | `/cg analyze`, Top N crafts rentables, affichage chat, détail recette | Autonomous | 🔲 |
+| 08 | Analyze & Report | Module Report séparé, `/cg analyze [N]`, `/cg detail`, arbre récursif buy vs craft | Autonomous | ✅ |
 
 ## Phase 4 — Données réelles
 
@@ -161,7 +161,7 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
 |-------|----------|--------|
 | Phase 1 — Bases | 3 | ✅ Terminé |
 | Phase 2 — UI minimale | 2 | ✅ Terminé |
-| Phase 3 — Cœur métier | 3 (2 ✅, 1 🔲) | 🔄 En cours |
+| Phase 3 — Cœur métier | 3 | ✅ Terminé |
 | Phase 4 — Données réelles | 7 | 🔲 À faire |
 | Phase 5 — Produit MVP | 2 | 🔲 À faire |
 | Phase 6 — Leveling Planner | 4 | 🔲 À faire |
@@ -333,3 +333,14 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
   - AH Scanner en 2 capsules (v1 simple + v2 pagination)
   - Leveling Planner en 3 capsules (Skill Difficulty → Leveling DP → Shopping List)
   - Inspirée des meilleures propositions de chaque LLM
+
+### Session 10 — Capsule 08 complétée
+- ✅ Capsule 08 (Analyze & Report) implémentée et testée en jeu :
+  - Module `Report.lua` extrait du shell monolithique de la capsule 07
+  - `/cg analyze [N]` — Top N paramétrable (défaut : tous)
+  - `/cg detail <itemID>` — rapport complet avec arbre récursif buy vs craft
+  - `/cg cost` → alias de `/cg detail`
+  - Shell réduit de ~300 à ~80 lignes
+- ✅ **Phase 3 complétée** (DB + Prix + Calculateur + Report)
+- ✅ Pas de Phase 0 nécessaire (aucune nouvelle API WoW)
+- ✅ Pas de pitfall rencontré — tout passé du premier coup
