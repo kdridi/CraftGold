@@ -19,13 +19,15 @@ Ce projet a un **double but** : produire un add-on fonctionnel ET apprendre à c
 
 1. L'agent liste ses hypothèses pour la capsule
 2. L'agent rédige le prompt de recherche et l'écrit dans `prompts/research-capsule-XX-<slug>.md`
-3. L'agent crée les 3 fichiers de réponse vides dans `prompts/` :
+3. L'agent crée les 5 fichiers de réponse vides dans `prompts/` :
    - `research-capsule-XX-<slug>-response-claude.md`
    - `research-capsule-XX-<slug>-response-gemini.md`
    - `research-capsule-XX-<slug>-response-chatgpt.md`
-4. L'utilisateur copie le prompt dans Claude, Gemini, ChatGPT et GitHub Copilot, puis colle chaque réponse dans le fichier correspondant
-5. L'utilisateur dit **« c'est bon »** quand les 3 réponses sont en place
-6. L'agent lit les 3 réponses, compare, extrait les faits validés, identifie les désaccords
+   - `research-capsule-XX-<slug>-response-copilot.md`
+   - `research-capsule-XX-<slug>-response-perplexity.md`
+4. L'utilisateur copie le prompt dans Claude, Gemini, ChatGPT, GitHub Copilot et Perplexity, puis colle chaque réponse dans le fichier correspondant
+5. L'utilisateur dit **« c'est bon »** quand les 5 réponses sont en place
+6. L'agent lit les 5 réponses, compare, extrait les faits validés, identifie les désaccords
 7. L'agent crée ou met à jour les fichiers dans `docs/` (base de connaissances validée)
 8. **Ce n'est qu'après cette étape** qu'on entre dans la Phase A (storytelling + checklist)
 
@@ -125,7 +127,7 @@ Un bug n'est jamais « juste corrigé dans le code ». Il est **coulé dans un t
 
 ## Recherche et validation externe
 
-Pi Coding Agent n'a pas un accès web fiable. Pour toute recherche ou prise de décision importante, l'agent doit **produire des prompts** que l'utilisateur copiera dans d'autres LLM (Claude, Gemini, ChatGPT, GitHub Copilot) puis rapportera les réponses.
+Pi Coding Agent n'a pas un accès web fiable. Pour toute recherche ou prise de décision importante, l'agent doit **produire des prompts** que l'utilisateur copiera dans d'autres LLM (Claude, Gemini, ChatGPT, GitHub Copilot, Perplexity) puis rapportera les réponses.
 
 ### Pattern 1 — Recherche web (info technique)
 
