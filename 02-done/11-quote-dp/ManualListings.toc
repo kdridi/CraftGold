@@ -1,0 +1,19 @@
+## Interface: 11508
+## Title: Manual Listings
+## Notes: Capsule 11 — Quote DP: covering knapsack for optimal stack buying
+## Author: CraftGold
+## Version: 1.1.0
+## SavedVariables: ManualListingsDB
+
+src\WoW.lua
+src\DB.lua
+src\Core.lua
+src\Money.lua
+src\Prices.lua
+src\Listings.lua
+src\Quote.lua
+src\CmdLang.lua
+src\Calculator.lua
+src\ItemInfo.lua
+src\Report.lua
+ManualListings.lua

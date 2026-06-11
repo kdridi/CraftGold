@@ -108,7 +108,7 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
 | 00 | Dev Tools | `/dump`, `/etrace`, `/fstack`, `/tinspect`, BugSack, DevTool, profiling, event spy | Semi-autonomous | ✅ |
 | 09 | Item Info | `GetItemInfo()`, `GetItemInfoInstant()`, cache asynchrone, `GET_ITEM_INFO_RECEIVED`, fallback itemID | Semi-autonomous | ✅ |
 | 10 | Manual Listings | Remplacer `price[item]` par `listings[item] = {{count, buyout}, …}`, saisie manuelle `/cg listing add`, prix par stack vs unité | Autonomous | ✅ |
-| 11 | Quote DP | DP covering knapsack 0/1 exact, `quote(itemID, quantity)`, reconstruction du panier, surplus | Autonomous | 🔲 |
+| 11 | Quote DP + CmdLang | DP covering knapsack 0/1 exact, `quote(itemID, quantity)`, surplus, parser déclaratif CmdLang, types, help auto, conditions dynamiques | Autonomous | ✅ |
 | 12 | Bill of Materials | Expansion récursive d'un craft en quantités agrégées de matières premières, `/cg shoplist` | Autonomous | 🔲 |
 | 13 | Buy vs Craft v2 | Refonte du calculateur avec `quote(itemID, qty)` au lieu de prix unitaire, `/cg analyze` mis à jour | Autonomous | 🔲 |
 | 14 | AH Scanner v1 | `QueryAuctionItems`, filtrage par itemID, événement `AUCTION_ITEM_LIST_UPDATE`, scan d'un item | Semi-autonomous | 🔲 |
@@ -163,7 +163,7 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
 | Phase 1 — Bases | 3 | ✅ Terminé |
 | Phase 2 — UI minimale | 2 | ✅ Terminé |
 | Phase 3 — Cœur métier | 3 | ✅ Terminé |
-| Phase 4 — Données réelles | 7 | 🔄 En cours (09-10 faits, 11-15 à faire) |
+| Phase 4 — Données réelles | 7 | 🔄 En cours (09-11 faits, 12-15 à faire) |
 | Phase 5 — Produit MVP | 2 | 🔲 À faire |
 | Phase 6 — Leveling Planner | 4 | 🔲 À faire |
 | **Total** | **21** | |
@@ -389,3 +389,29 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
 - ✅ **Découverte majeure** : `ns` local → inaccessible depuis `/run` → ajout `_G.cgNS = ns` dans ManualListings
 - ✅ Skill `wow-dev-debug` mis à jour avec les découvertes de la session
 - ✅ README capsule écrit avec vrai vécu + cheat sheet
+
+### Session 14 — Capsule 11 (Quote DP + CmdLang) complétée
+- ✅ **Quote DP** — DP covering knapsack 0/1 exact :
+  - `Quote.dpCover(listings, need)` → coût optimal + panier + surplus
+  - `Quote.greedy(listings, need)` — témoin pour comparaison
+  - `Quote.quote(itemID, qty)` — API publique
+  - Contre-exemples où le glouton se trompe (DP = 400 vs Greedy = 1000)
+  - 19 tests busted
+- ✅ **CmdLang** — Mini-langage déclaratif de commandes :
+  - Consultation multi-agents (4 LLM) sur le design de parsers déclaratifs en Lua
+  - **Consensus** : spec déclarative (table) + arbre de commandes + registry de types
+  - **Consensus 3/4** : bug `pairs()` — args doivent être tableau ordonné `{"name:type"}`
+  - Parser, tokenizer (guillemets, `;` batch), resolver, binder typé
+  - Types : `int`, `number`, `string`, `bool`, `money` (→ cuivre), `enum(a|b|c)`, `rest`, customs
+  - Help auto-généré : `help()` (activées), `helpAll()` (tout avec raisons)
+  - Conditions dynamiques : `condition = function() return bool, reason end`
+  - Shell réécrit — plus de `if/elseif`, plus de `/cg run` (batch natif via `;`)
+  - 57 tests busted
+- ✅ 76 tests busted au total (19 Quote + 57 CmdLang)
+- ✅ Tests en jeu : `/cg help`, `/cg quote`, batch `;` fonctionnels
+- ✅ `docs/cmdlang.md` créé (architecture, types, conditions, état de l'art)
+- ✅ `docs/quote-dp.md` créé (algorithme, API, contre-exemples)
+- ✅ Pitfalls découverts :
+  - `quote` ne marchait pas dans `/cg run` → raison de la refonte CmdLang
+  - `return CmdLang` ignoré par WoW .toc → `ns.CmdLang = CmdLang` conditionnel
+  - `rest` type retournait `""` au lieu de `nil` quand vide
