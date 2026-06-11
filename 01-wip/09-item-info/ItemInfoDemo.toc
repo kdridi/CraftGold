@@ -1,0 +1,16 @@
+## Interface: 11508
+## Title: ItemInfo Demo
+## Notes: Capsule 09 — Centralized item info module with C_Item.* API exploration
+## Author: CraftGold
+## Version: 1.0.0
+## SavedVariables: ItemInfoDemoDB
+
+src\WoW.lua
+src\DB.lua
+src\Core.lua
+src\Money.lua
+src\Prices.lua
+src\Calculator.lua
+src\ItemInfo.lua
+src\Report.lua
+ItemInfoDemo.lua

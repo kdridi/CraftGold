@@ -117,6 +117,8 @@ end)
 | `ADDON_LOADED` | Un add-on a fini de charger (une fois par add-on). Les SavedVars sont déjà peuplées. | 03 |
 | `PLAYER_LOGOUT` | Le joueur se déconnecte/reload — dernière chance avant sauvegarde des SavedVars | 03 |
 | `SAVED_VARIABLES_TOO_LARGE` | Les SavedVars d'un add-on sont trop volumineuses pour être chargées | 03 |
+| `GET_ITEM_INFO_RECEIVED` | Données d'un item reçues du serveur — payload : `itemID` (number), `success` (bool) | 06 |
+| `ITEM_DATA_LOAD_RESULT` | Données d'un item chargées en cache — payload : `itemID` (number), `success` (bool). Utilisé en interne par `ContinueOnItemLoad` | 09 |
 
 ---
 
@@ -474,6 +476,62 @@ end)
 - Utilise `ItemEventListener` en interne (événement `ITEM_DATA_LOAD_RESULT`)
 - C'est l'API Blizzard recommandée pour la résolution async d'items
 - **Garde anti-recyclage** : toujours vérifier `if self.recipe == recipe then` dans le callback
+
+### `C_Item.GetItemNameByID(itemID)` — Capsule 09
+
+**Rôle** : Retourne juste le nom localisé d'un item. Plus léger que `GetItemInfo()` quand on ne veut que le nom.
+
+```lua
+local name = C_Item.GetItemNameByID(2840)  -- "Copper Bar" / "Barre de cuivre" / etc.
+```
+
+- Retourne `nil` si l'item n'est pas en cache (même cache que `GetItemInfo`)
+- Partage le même cache que `GetItemInfo()` — si l'un retourne une valeur, l'autre aussi
+- Source : `Blizzard_APIDocumentationGenerated/ItemDocumentation.lua`
+
+### `C_Item.IsItemDataCachedByID(itemID)` — Capsule 09
+
+**Rôle** : Retourne `true` si les données complètes de l'item sont en cache local. **Synchrone**, jamais async.
+
+```lua
+if C_Item.IsItemDataCachedByID(2840) then
+    -- GetItemInfo garant de retourner les données
+end
+```
+
+- Utile pour décider si on peut appeler `GetItemInfo()` ou si on doit utiliser `ContinueOnItemLoad`
+- Retourne `false` pour un itemID invalide
+
+### `C_Item.GetItemIconByID(itemID)` — Capsule 09
+
+**Rôle** : Retourne juste l'icône (fileID) d'un item.
+
+```lua
+local icon = C_Item.GetItemIconByID(2840)  -- ex: 135020
+```
+
+- Retourne `nil` si pas en cache
+
+### `C_Item.GetItemQualityByID(itemID)` — Capsule 09
+
+**Rôle** : Retourne juste la qualité (0=Poor, 1=Common, 2=Uncommon, 3=Rare, 4=Epic...).
+
+```lua
+local quality = C_Item.GetItemQualityByID(2840)  -- 1 (Common)
+```
+
+- Retourne `nil` si pas en cache
+
+### `C_Item.RequestLoadItemDataByID(itemID)` — Capsule 09
+
+**Rôle** : Demande explicitement au client de charger les données d'un item. Déclenche `ITEM_DATA_LOAD_RESULT` quand c'est prêt.
+
+```lua
+C_Item.RequestLoadItemDataByID(2840)
+```
+
+- Utilisé en interne par `ContinueOnItemLoad`
+- Rarement nécessaire d'appeler directement — `ContinueOnItemLoad` le fait pour vous
 
 ### `Mixin(object, mixinTable)`
 
