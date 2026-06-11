@@ -1,8 +1,8 @@
-# Consultation — Achat de stacks indivisibles vs fractionnaires à l'Hôtel des Ventes
+# Consultation — Achat de stacks indivisibles vs fractionnaires à l'Hôtel des Ventes WoW Classic Era
 
 ## Contexte
 
-Suite à notre consultation précédente sur CraftGold (add-on WoW Classic Era), les 4 LLM consultés ont proposé des algorithmes différents pour résoudre le problème du coût réel d'achat à l'Hôtel des Ventes. Le désaccord porte sur un point factuel qui conditionne tout l'algorithme.
+Je développe **CraftGold**, un add-on World of Warcraft Classic Era (Lua). L'un des objectifs est de calculer le **coût réel exact** de l'achat de composants à l'Hôtel des Ventes, en tenant compte du fait que l'HdV présente des listings de tailles et prix différents.
 
 ## La question factuelle
 
@@ -19,19 +19,6 @@ Si **achat fractionnaire** (A) → un simple tri par prix unitaire suffit (glout
 Si **stacks indivisibles** (B) → c'est un covering knapsack 0/1. On doit choisir quels stacks entiers acheter pour couvrir la quantité souhaitée au coût minimal. Le glouton peut se tromper :
 
 ```
-Besoin : 7 Copper Bars
-
-Listing 1 : x1 à 1s
-Listing 2 : x5 à 25s
-Listing 3 : x20 à 2g
-Listing 4 : x1 à 15s
-
-Glouton (tri prix unitaire) : L1(1s) + L2(25s) + L4(15s) = 41s → 7 bars ✅
-DP exact : même résultat ici, mais il existe des contre-exemples
-```
-
-```
-Contre-exemple :
 Besoin : 2 unités
 
 Listing A : x20 à 2s/unité → 40s total
