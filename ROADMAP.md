@@ -99,9 +99,7 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
 | 07 | Price & Calculator | Prix manuels (`/cg price`), formatage money, calculateur récursif `min(buy, craft)`, cycles, mémoïsation | Autonomous | ✅ |
 | 08 | Analyze & Report | Module Report séparé, `/cg analyze [N]`, `/cg detail`, arbre récursif buy vs craft | Autonomous | ✅ |
 
-## Phase 4 — Données réelles
-
-> Objectif : passer du modèle simpliste (1 prix/item) au modèle réel (listings HdV indivisibles, DP knapsack).
+## Phase 4 — Données réelles ✅
 
 | # | Capsule | Concepts clés | Type | Statut |
 |---|---------|---------------|------|--------|
@@ -120,7 +118,7 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
 
 | # | Capsule | Concepts clés | Type | Statut |
 |---|---------|---------------|------|--------|
-| 16 | Profit Analyzer v2 | `/cg analyze` refondu avec coûts exacts via DP, prix de vente estimé | Semi-autonomous | 🔲 |
+| 16 | Profit Analyzer v2 | `marketPrice()`, commission HdV 5%, profit net, source tracking `[AH]`/`[Manual]` | Semi-autonomous | ✅ |
 | 17 | Profit Window | Fenêtre CraftGold, bouton Scan/Analyze, Top 10 crafts, sélection, détail | Sequential (11, 13) | 🔲 |
 
 ## Phase 6 — Leveling Planner
@@ -163,8 +161,8 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
 | Phase 1 — Bases | 3 | ✅ Terminé |
 | Phase 2 — UI minimale | 2 | ✅ Terminé |
 | Phase 3 — Cœur métier | 3 | ✅ Terminé |
-| Phase 4 — Données réelles | 7 | 🔄 En cours (00, 09-15 faits)
-| Phase 5 — Produit MVP | 2 | 🔲 À faire |
+| Phase 4 — Données réelles | 7 | ✅ Terminé |
+| Phase 5 — Produit MVP | 2 | 🔄 En cours (16 fait) |
 | Phase 6 — Leveling Planner | 4 | 🔲 À faire |
 | **Total** | **21** | |
 
@@ -490,3 +488,17 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
 - ✅ `WoW.lua` enrichi : `CreateFrame` dans la seam
 - ✅ **154 tests busted** au total (0 failures)
 - ✅ `docs/wow-api.md` enrichi (piège buffer périmé en pagination)
+
+### Session 19 — Capsule 16 (Profit Analyzer v2) complétée
+- ✅ Phase 0 : aucune nouvelle API WoW nécessaire — pure assemblage des briques existantes
+- ✅ Capsule 16 (Profit Analyzer v2) implémentée et testée en jeu :
+  - **`Quote.marketPrice(itemID)`** : prix unitaire le plus bas depuis les listings (fallback manual)
+  - **Commission HdV 5%** : `netSell = floor(sellPrice × 0.95)`, `profit = netSell - craftCost`
+  - **Source tracking** : chaque craft affiche `[AH]` ou `[Manual]` pour le prix de vente
+  - **`/cg analyze`** refondu : profit net après commission, source, marge
+  - **`/cg detail`** mis à jour : estimation marché via `marketPrice()` + commission
+- ✅ **Bug Money.format corrigé** : montants négatifs affichaient `—` au lieu de `-Xc`
+- ✅ **166 tests busted** (0 failures) — +12 tests marketPrice + analyze v2
+- ✅ **46 tests in-game** (0 failures) — +11 tests Profit Analyzer v2
+- ✅ **Phase 4 complétée** (7/7 capsules)
+- ✅ Validé en jeu avec vraies données HdV : Bombe grossière en cuivre = -7c (perte, commission comprise)

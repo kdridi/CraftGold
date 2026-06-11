@@ -1,0 +1,21 @@
+## Interface: 11508
+## Title: CraftGold
+## Notes: Capsule 15 — AH Scanner v2: pagination, throttling, queue
+## Author: CraftGold
+## Version: 1.5.0
+## SavedVariables: ManualListingsDB
+
+src\WoW.lua
+src\DB.lua
+src\Core.lua
+src\Money.lua
+src\Prices.lua
+src\Listings.lua
+src\Quote.lua
+src\CmdLang.lua
+src\Calculator.lua
+src\ItemInfo.lua
+src\Report.lua
+src\BOM.lua
+src\Scanner.lua
+ManualListings.lua
