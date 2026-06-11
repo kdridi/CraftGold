@@ -1,0 +1,17 @@
+## Interface: 11508
+## Title: Manual Listings
+## Notes: Capsule 10 — AH listing model: stacks with count and buyout
+## Author: CraftGold
+## Version: 1.0.0
+## SavedVariables: ManualListingsDB
+
+src\WoW.lua
+src\DB.lua
+src\Core.lua
+src\Money.lua
+src\Prices.lua
+src\Listings.lua
+src\Calculator.lua
+src\ItemInfo.lua
+src\Report.lua
+ManualListings.lua

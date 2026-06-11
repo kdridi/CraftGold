@@ -106,7 +106,7 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
 | # | Capsule | Concepts clés | Type | Statut |
 |---|---------|---------------|------|--------|
 | 09 | Item Info | `GetItemInfo()`, `GetItemInfoInstant()`, cache asynchrone, `GET_ITEM_INFO_RECEIVED`, fallback itemID | Semi-autonomous | ✅ |
-| 10 | Manual Listings | Remplacer `price[item]` par `listings[item] = {{count, buyout}, …}`, saisie manuelle `/cg listing add`, prix par stack vs unité | Autonomous | 🔲 |
+| 10 | Manual Listings | Remplacer `price[item]` par `listings[item] = {{count, buyout}, …}`, saisie manuelle `/cg listing add`, prix par stack vs unité | Autonomous | ✅ |
 | 11 | Quote DP | DP covering knapsack 0/1 exact, `quote(itemID, quantity)`, reconstruction du panier, surplus | Autonomous | 🔲 |
 | 12 | Bill of Materials | Expansion récursive d'un craft en quantités agrégées de matières premières, `/cg shoplist` | Autonomous | 🔲 |
 | 13 | Buy vs Craft v2 | Refonte du calculateur avec `quote(itemID, qty)` au lieu de prix unitaire, `/cg analyze` mis à jour | Autonomous | 🔲 |
@@ -344,6 +344,20 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
 - ✅ **Phase 3 complétée** (DB + Prix + Calculateur + Report)
 - ✅ Pas de Phase 0 nécessaire (aucune nouvelle API WoW)
 - ✅ Pas de pitfall rencontré — tout passé du premier coup
+
+### Session 12 — Capsule 10 complétée
+- ✅ Capsule 10 (Manual Listings) implémentée et testée en jeu :
+  - Module `Listings.lua` : CRUD pour listings `{count, buyout}` par itemID
+  - `/cg listing add/remove/list/clear` — gestion complète des stacks indivisibles
+  - `/cg run cmd1; cmd2; ...` — batch commands (évite le copier-coller one-by-one)
+  - `/cg log on/off/clear/show` — capture d'output dans SavedVariables (lisible hors-jeu)
+  - `/cg reset` — nettoyage complet des prices et listings
+  - 42 tests unitaires avec save/restore de l'état utilisateur
+  - Coexistence Prices ↔ Listings (Calculator non modifié)
+- ✅ Pitfalls résolus :
+  - Tests qui polluaient les données utilisateur → save/restore complet
+  - Bug de restauration (prix fantômes) → remove avant restore
+  - `getListings()` retourne `{}` pas `nil` → test corrigé
 
 ### Session 11 — Capsule 09 complétée
 - ✅ Capsule 09 (Item Info) implémentée et testée en jeu :
