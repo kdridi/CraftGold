@@ -90,6 +90,26 @@ scan: unavailable — auction house must be open
 
 **Résultat** : rien n'existait pour ce besoin précis (déclaratif + sous-commandes + types métier + batch + pur Lua 5.1 + conditions). CmdLang est original.
 
+### Nœuds hybrides (handler + subs)
+
+Depuis la capsule 12, un nœud peut avoir **à la fois** un `handler` et des `subs`. Si le token suivant correspond à un sub → on descend. Sinon → on le traite comme une feuille (bind args sur le handler).
+
+```lua
+cmd:register {
+    name = "shoplist",
+    args = { { "itemID:int", "Item" }, { "qty:int?", "Qty" } },
+    handler = function(a) ... end,          -- /cg shoplist 4360 3
+    subs = {
+        expand = {
+            args = { { "itemID:int", "Item" }, { "qty:int?", "Qty" } },
+            handler = function(a) ... end,   -- /cg shoplist expand 4360 3
+        },
+    },
+}
+```
+
+Sans handler sur le nœud parent, le comportement inchangé : sous-commande obligatoire, erreur si token manquant ou inconnu.
+
 ### Bug connu : `pairs()` en Lua
 
 `{ itemID = "int", count = "int" }` ne préserve pas l'ordre. Il faut un tableau ordonné : `{ "itemID:int", "count:int" }`. Découvert par 3/4 LLM.

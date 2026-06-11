@@ -84,6 +84,17 @@ L'agent **guide** : « crée ce fichier avec ce contenu », « copie le dossier 
 - Si ça ne marche pas comme prévu → on creuse, on ne rationalise pas, on corrige
 - L'agent ne produit pas les fichiers — il guide pour que l'apprenant les crée
 
+**⛔ Règle : Bug = trou dans les tests unitaires.**
+
+Quand un bug est découvert (en jeu ou en dev), c'est un **trou dans la raquette des tests unitaires busted**. Avant toute autre action :
+
+1. **Écrire un test busted qui reproduit le bug** — le test doit échouer avec le code actuel
+2. **Corriger le code** — le test doit maintenant passer
+3. **Lancer busted** — vérifier que TOUS les tests passent (anciens + nouveau)
+4. **Seulement ensuite** demander à l'utilisateur de tester en jeu
+
+Un bug n'est jamais « juste corrigé dans le code ». Il est **coulé dans un test** qui garantit la non-régression.
+
 **Workflow de test :**
 1. Copier le dossier capsule dans `Interface/AddOns/`
 2. `/reload` en jeu (ou relancer WoW)
