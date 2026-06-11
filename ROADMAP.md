@@ -112,7 +112,7 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
 | 12 | Bill of Materials | Expansion récursive d'un craft en quantités agrégées de matières premières, `/cg shoplist` | Autonomous | ✅ |
 | 13 | Buy vs Craft v2 | Refonte du calculateur avec `quote(itemID, qty)` au lieu de prix unitaire, `/cg analyze` mis à jour | Autonomous | ✅ |
 | 14 | AH Scanner v1 | `QueryAuctionItems`, filtrage par itemID, événement `AUCTION_ITEM_LIST_UPDATE`, scan d'un item | Semi-autonomous | ✅ |
-| 15 | AH Scanner v2 | Pagination (50 résultats/page), throttling, file d'attente, fraîcheur des données | Semi-autonomous | 🔲 |
+| 15 | AH Scanner v2 | Pagination (50 résultats/page), throttling, file d'attente, buffer périmé | Semi-autonomous | ✅ |
 
 ## Phase 5 — Produit MVP
 
@@ -163,7 +163,7 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
 | Phase 1 — Bases | 3 | ✅ Terminé |
 | Phase 2 — UI minimale | 2 | ✅ Terminé |
 | Phase 3 — Cœur métier | 3 | ✅ Terminé |
-| Phase 4 — Données réelles | 7 | 🔄 En cours (00, 09-14 faits, 15 à faire) |
+| Phase 4 — Données réelles | 7 | 🔄 En cours (00, 09-15 faits)
 | Phase 5 — Produit MVP | 2 | 🔲 À faire |
 | Phase 6 — Leveling Planner | 4 | 🔲 À faire |
 | **Total** | **21** | |
@@ -471,3 +471,22 @@ Source : consultation multi-agents (`prompts/multiagent-mvp-strategy.md`).
 - ✅ **18 tests in-game** pour le Scanner (0 failures)
 - ✅ `docs/wow-api.md` enrichi (événements AH, pièges en jeu)
 - ✅ `docs/cmdlang.md` enrichi (section bug help hybride)
+
+### Session 18 — Capsule 15 (AH Scanner v2) complétée
+- ✅ Phase 0 : code source Blizzard suffisant — aucun prompt externe nécessaire
+  - `NUM_AUCTION_ITEMS_PER_PAGE = 50` confirmé
+  - `GetNumAuctionItems("list")` retourne `(numBatchAuctions, totalAuctions)`
+  - Pattern Blizzard : `OnUpdate` + `CanSendAuctionQuery()` avant chaque query
+- ✅ Capsule 15 (AH Scanner v2) implémentée et testée en jeu :
+  - **Pagination automatique** : scan toutes les pages d'un item (>50 résultats)
+  - **Throttling** : `OnUpdate` frame + `CanSendAuctionQuery()` (même pattern que l'UI Blizzard)
+  - **File d'attente** : `/cg scan 2840; scan 2589; scan 2835` → scans séquentiels
+  - `/cg scan status` → progression (page N/M, listings trouvés)
+  - `/cg scan queue` → items en attente
+  - `/cg scan cancel` → annule + vide la queue
+- ✅ **Bug buffer périmé découvert et corrigé** : `GetNumAuctionItems` retourne 50 même sur la dernière page, les slots excédentaires contiennent des données de la page précédente
+  - Fix : plafonner la boucle à `totalAuctions - page × 50` sur la dernière page
+  - Validé en jeu : 75 items → 75 listings (pas 100), 134 items → 134 (pas 150)
+- ✅ `WoW.lua` enrichi : `CreateFrame` dans la seam
+- ✅ **154 tests busted** au total (0 failures)
+- ✅ `docs/wow-api.md` enrichi (piège buffer périmé en pagination)

@@ -113,6 +113,7 @@ ownerFullName, saleStatus, itemId, hasAllInfo = GetAuctionItemInfo("list", index
 1. **`QueryAuctionItems` échoue silencieusement** si l'HdV n'est pas ouvert. Aucun événement `AUCTION_ITEM_LIST_UPDATE` ne se déclenche. Le scanner peut rester bloqué dans l'état "active" à jamais si l'HdV est fermé entre le lancement du scan et la réception des résultats.
 2. **`CanSendAuctionQuery()`** — le code source Blizzard appelle `CanSendAuctionQuery("list")` avec un argument, mais la version sans argument fonctionne aussi.
 3. **`exactMatch=true`** — le code Blizzard extrait le texte entre guillemets (`"Copper Bar"`) et active `exactMatch`. Sans guillemets, c'est une recherche de sous-chaîne.
+4. **Buffer périmé en pagination (Session 18)** — `GetNumAuctionItems("list")` retourne `(50, totalAuctions)` même sur la dernière page. Le buffer interne contient des données de la page précédente dans les slots excédentaires. Exemple : 75 items totaux → page 1 signale `numBatchAuctions=50` mais seuls 25 sont nouveaux. **Solution** : plafonner la lecture à `totalAuctions - page × 50` sur la dernière page.
 
 ### Exemple : trouver le buyout le moins cher pour un item
 
