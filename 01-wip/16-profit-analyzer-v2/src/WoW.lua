@@ -24,6 +24,8 @@ local FALLBACKS = {
     GetNumAuctionItems = function() return 0, 0 end,
     GetAuctionItemInfo = function() return nil end,
     CreateFrame = function() return nil end,
+    GetFramesRegisteredForEvent = function() return {} end,
+    C_Timer_After = function() end,
 }
 
 -------------------------------------------------
@@ -38,6 +40,8 @@ WoW.QueryAuctionItems = FALLBACKS.QueryAuctionItems
 WoW.GetNumAuctionItems = FALLBACKS.GetNumAuctionItems
 WoW.GetAuctionItemInfo = FALLBACKS.GetAuctionItemInfo
 WoW.CreateFrame = FALLBACKS.CreateFrame
+WoW.GetFramesRegisteredForEvent = FALLBACKS.GetFramesRegisteredForEvent
+WoW.C_Timer_After = FALLBACKS.C_Timer_After
 
 -------------------------------------------------
 -- Initialization
@@ -52,4 +56,13 @@ function WoW.init(env)
     WoW.GetNumAuctionItems = env.GetNumAuctionItems or FALLBACKS.GetNumAuctionItems
     WoW.GetAuctionItemInfo = env.GetAuctionItemInfo or FALLBACKS.GetAuctionItemInfo
     WoW.CreateFrame = env.CreateFrame or FALLBACKS.CreateFrame
+    WoW.GetFramesRegisteredForEvent = env.GetFramesRegisteredForEvent or FALLBACKS.GetFramesRegisteredForEvent
+    -- C_Timer.After is a global: C_Timer.After(delay, callback)
+    if env.C_Timer and env.C_Timer.After then
+        WoW.C_Timer_After = env.C_Timer.After
+    elseif _G.C_Timer and _G.C_Timer.After then
+        WoW.C_Timer_After = _G.C_Timer.After
+    else
+        WoW.C_Timer_After = FALLBACKS.C_Timer_After
+    end
 end

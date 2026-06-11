@@ -688,6 +688,57 @@ cmd:register {
     },
 }
 
+-- /cg fullscan
+-- /cg fullscan status
+cmd:register {
+    name = "fullscan",
+    help = "Full AH scan (getAll, 15min cooldown)",
+    condition = function()
+        if not ns.Scanner.isAHOpen() then
+            return false, "AH is not open"
+        end
+        return true
+    end,
+    handler = function()
+        local ok, err = ns.FullScan.start()
+        if not ok then
+            printMsg("|cFFFF0000[FullScan]|r " .. err)
+        else
+            printMsg("|cFF4FC3F7[FullScan]|r Starting full scan... (may take 10-30s)")
+        end
+    end,
+    subs = {
+        status = {
+            help = "Show full scan status",
+            handler = function()
+                if ns.FullScan.isActive() then
+                    printMsg("|cFF4FC3F7[FullScan]|r Scan in progress...")
+                else
+                    local last = ns.FullScan.getLastScanTime()
+                    if last == 0 then
+                        printMsg("|cFF4FC3F7[FullScan]|r No scan yet. Open AH and use /cg fullscan")
+                    else
+                        local age = time() - last
+                        local stale = ns.FullScan.isStale()
+                        local ageMin = math.floor(age / 60)
+                        local ageSec = age % 60
+                        local itemCount = ns.Listings.count()
+                        if stale then
+                            printMsg(string.format(
+                                "|cFF4FC3F7[FullScan]|r Last scan: |cFFFF0000%dm %ds ago|r (stale, rescan recommended). %d items in cache.",
+                                ageMin, ageSec, itemCount))
+                        else
+                            printMsg(string.format(
+                                "|cFF4FC3F7[FullScan]|r Last scan: |cFF00FF00%dm %ds ago|r (fresh). %d items in cache.",
+                                ageMin, ageSec, itemCount))
+                        end
+                    end
+                end
+            end,
+        },
+    },
+}
+
 -- /cg test
 cmd:register {
     name = "test",
@@ -964,6 +1015,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
         ManualListingsDB = ManualListingsDB or {}
         ns.Prices.init(ManualListingsDB)
         ns.Listings.init(ManualListingsDB)
+        ns.FullScan.init(ManualListingsDB)
 
         -- Restore log if it was active before reload
         if ManualListingsDB._logActive then
